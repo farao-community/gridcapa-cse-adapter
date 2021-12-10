@@ -1,0 +1,18 @@
+spring:
+  rabbitmq:
+    username: guest
+    password: guest
+    host: localhost
+    port: 5672
+  cloud:
+    stream:
+      bindings:
+        handleRun-in-0:
+          binder: rabbit
+          destination: run-task
+        handleRun-out-0:
+          binder: rabbit
+          destination: cse-run-task
+
+cse-adapter:
+  target-process: IDCC

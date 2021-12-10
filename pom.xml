@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.farao-community.farao</groupId>
+        <artifactId>farao-parent-ws</artifactId>
+        <version>1.1.0</version>
+    </parent>
+
+    <artifactId>gridcapa-cse-adapter</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>GridCapa CSE adapter</name>
+    <description>POM parent for applications that adapt an income to a process launch</description>
+    <packaging>pom</packaging>
+
+    <scm>
+        <connection>scm:git:https://github.com/farao-community/gridcapa-cse-adapter.git</connection>
+        <developerConnection>scm:git:https://github.com/farao-community/gridcapa-cse-adapter.git</developerConnection>
+        <url>https://github.com/farao-community/gridcapa-cse-adapter.git</url>
+    </scm>
+
+    <modules>
+        <module>cse-adapter-app</module>
+    </modules>
+
+    <properties>
+        <task-manager.api.version>0.1.0</task-manager.api.version>
+        <cse-runner.api.version>0.1.0</cse-runner.api.version>
+        <spring-cloud.version>Hoxton.SR12</spring-cloud.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.farao-community.farao</groupId>
+                <artifactId>gridcapa-task-manager-api</artifactId>
+                <version>${task-manager.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.farao-community.farao</groupId>
+                <artifactId>gridcapa-cse-runner-api</artifactId>
+                <version>${cse-runner.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
