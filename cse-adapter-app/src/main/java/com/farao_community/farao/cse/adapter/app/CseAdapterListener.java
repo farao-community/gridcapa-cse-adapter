@@ -14,8 +14,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
-import java.util.Objects;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -44,65 +46,24 @@ public class CseAdapterListener {
     }
 
     CseRequest getIdccRequest(TaskDto taskDto) {
-        String cgmUrl = null;
-        String cracUrl = null;
-        String glskUrl = null;
-        String yearlyNtcUrl = null;
-        String dailyNtcUrl = null;
-        String atItNtc2Url = null;
-        String frItNtc2Url = null;
-        String chItNtc2Url = null;
-        String siItNtc2Url = null;
-        String vulcanusUrl = null;
-        for (ProcessFileDto processFileDto : taskDto.getProcessFiles()) {
-            switch (processFileDto.getFileType()) {
-                case "CGM":
-                    cgmUrl = processFileDto.getFileUrl();
-                    break;
-                case "CRAC":
-                    cracUrl = processFileDto.getFileUrl();
-                    break;
-                case "GLSK":
-                    glskUrl = processFileDto.getFileUrl();
-                    break;
-                case "NTC":
-                    yearlyNtcUrl = processFileDto.getFileUrl();
-                    break;
-                case "NTC-RED":
-                    dailyNtcUrl = processFileDto.getFileUrl();
-                    break;
-                case "VULCANUS":
-                    vulcanusUrl = processFileDto.getFileUrl();
-                    break;
-                case "AT-NTC2":
-                    atItNtc2Url = processFileDto.getFileUrl();
-                    break;
-                case "FR-NTC2":
-                    frItNtc2Url = processFileDto.getFileUrl();
-                    break;
-                case "CH-NTC2":
-                    chItNtc2Url = processFileDto.getFileUrl();
-                    break;
-                case "SI-NTC2":
-                    siItNtc2Url = processFileDto.getFileUrl();
-                    break;
-                default:
-                    throw new NotImplementedException(String.format("File type is not handled for IDCC: %s", processFileDto.getFileType()));
-            }
-        }
+        Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
+            .collect(Collectors.toMap(
+                ProcessFileDto::getFileType,
+                ProcessFileDto::getFileUrl
+            ));
         return CseRequest.idccProcess(
             taskDto.getId().toString(),
             taskDto.getTimestamp().atZone(ZoneId.of("UTC")).toOffsetDateTime(),
-            Objects.requireNonNull(cgmUrl),
-            Objects.requireNonNull(cracUrl),
-            Objects.requireNonNull(glskUrl),
-            Objects.requireNonNull(dailyNtcUrl),
-            Objects.requireNonNull(atItNtc2Url),
-            Objects.requireNonNull(chItNtc2Url),
-            Objects.requireNonNull(frItNtc2Url),
-            Objects.requireNonNull(siItNtc2Url),
-            Objects.requireNonNull(vulcanusUrl),
-            Objects.requireNonNull(yearlyNtcUrl),
+            Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
+            Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
+            Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
+            Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
+            Optional.ofNullable(processFileUrlByType.get("NTC2-AT")).orElseThrow(() -> new CseAdapterException("NTC2-AT type not found")),
+            Optional.ofNullable(processFileUrlByType.get("NTC2-CH")).orElseThrow(() -> new CseAdapterException("NTC2-CH type not found")),
+            Optional.ofNullable(processFileUrlByType.get("NTC2-FR")).orElseThrow(() -> new CseAdapterException("NTC2-FR type not found")),
+            Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
+            Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
+            Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
             50,
             650,
             null
@@ -110,50 +71,21 @@ public class CseAdapterListener {
     }
 
     CseRequest getD2ccRequest(TaskDto taskDto) {
-        String cgmUrl = null;
-        String cracUrl = null;
-        String glskUrl = null;
-        String yearlyNtcUrl = null;
-        String dailyNtcUrl = null;
-        String targetChUrl = null;
-        String vulcanusUrl = null;
-        for (ProcessFileDto processFileDto : taskDto.getProcessFiles()) {
-            switch (processFileDto.getFileType()) {
-                case "CGM":
-                    cgmUrl = processFileDto.getFileUrl();
-                    break;
-                case "CRAC":
-                    cracUrl = processFileDto.getFileUrl();
-                    break;
-                case "GLSK":
-                    glskUrl = processFileDto.getFileUrl();
-                    break;
-                case "NTC":
-                    yearlyNtcUrl = processFileDto.getFileUrl();
-                    break;
-                case "NTC-RED":
-                    dailyNtcUrl = processFileDto.getFileUrl();
-                    break;
-                case "VULCANUS":
-                    vulcanusUrl = processFileDto.getFileUrl();
-                    break;
-                case "TARGET-CH":
-                    targetChUrl = processFileDto.getFileUrl();
-                    break;
-                default:
-                    throw new NotImplementedException(String.format("File type is not handled for IDCC: %s", processFileDto.getFileType()));
-            }
-        }
+        Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
+            .collect(Collectors.toMap(
+                ProcessFileDto::getFileType,
+                ProcessFileDto::getFileUrl
+            ));
         return CseRequest.d2ccProcess(
             taskDto.getId().toString(),
             taskDto.getTimestamp().atZone(ZoneId.of("UTC")).toOffsetDateTime(),
-            Objects.requireNonNull(cgmUrl),
-            Objects.requireNonNull(cracUrl),
-            Objects.requireNonNull(glskUrl),
-            Objects.requireNonNull(dailyNtcUrl),
-            Objects.requireNonNull(targetChUrl),
-            Objects.requireNonNull(vulcanusUrl),
-            Objects.requireNonNull(yearlyNtcUrl),
+            Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
+            Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
+            Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
+            Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
+            Optional.ofNullable(processFileUrlByType.get("TARGET-CH")).orElseThrow(() -> new CseAdapterException("TARGET-CH type not found")),
+            Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
+            Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
             50,
             650,
             null

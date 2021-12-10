@@ -37,10 +37,10 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
         processFiles.add(new ProcessFileDto("VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp, "file://vulcanus.xls"));
-        processFiles.add(new ProcessFileDto("AT-NTC2", ProcessFileStatus.VALIDATED, "at-ntc2", timestamp, "file://at-ntc2.xml"));
-        processFiles.add(new ProcessFileDto("CH-NTC2", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp, "file://ch-ntc2.xml"));
-        processFiles.add(new ProcessFileDto("FR-NTC2", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp, "file://fr-ntc2.xml"));
-        processFiles.add(new ProcessFileDto("SI-NTC2", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("NTC2-AT", ProcessFileStatus.VALIDATED, "at-ntc2", timestamp, "file://at-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("NTC2-CH", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp, "file://ch-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("NTC2-FR", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp, "file://fr-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles);
 
         CseRequest cseRequest = cseAdapterListener.getIdccRequest(taskDto);
@@ -72,13 +72,13 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
         processFiles.add(new ProcessFileDto("VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp, "file://vulcanus.xls"));
-        processFiles.add(new ProcessFileDto("AT-NTC2", ProcessFileStatus.VALIDATED, "at-ntc2", timestamp, "file://at-ntc2.xml"));
-        processFiles.add(new ProcessFileDto("CH-NTC2", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp, "file://ch-ntc2.xml"));
-        processFiles.add(new ProcessFileDto("FR-NTC2", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp, "file://fr-ntc2.xml"));
-        processFiles.add(new ProcessFileDto("SI-NTC2", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("NTC2-AT", ProcessFileStatus.VALIDATED, "at-ntc2", timestamp, "file://at-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("NTC2-CH", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp, "file://ch-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("NTC2-FR", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp, "file://fr-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles);
 
-        assertThrows(NullPointerException.class, () -> cseAdapterListener.getIdccRequest(taskDto));
+        assertThrows(CseAdapterException.class, () -> cseAdapterListener.getIdccRequest(taskDto));
     }
 
     @Test
@@ -124,6 +124,6 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp, "file://target-ch.xml"));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles);
 
-        assertThrows(NullPointerException.class, () -> cseAdapterListener.getD2ccRequest(taskDto));
+        assertThrows(CseAdapterException.class, () -> cseAdapterListener.getD2ccRequest(taskDto));
     }
 }
