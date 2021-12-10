@@ -27,11 +27,23 @@
     </modules>
 
     <properties>
+        <task-manager.api.version>0.1.0</task-manager.api.version>
+        <cse-runner.api.version>0.1.0</cse-runner.api.version>
         <spring-cloud.version>Hoxton.SR12</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.farao-community.farao</groupId>
+                <artifactId>gridcapa-task-manager-api</artifactId>
+                <version>${task-manager.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.farao-community.farao</groupId>
+                <artifactId>gridcapa-cse-runner-api</artifactId>
+                <version>${cse-runner.api.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
