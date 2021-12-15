@@ -10,6 +10,8 @@ import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
  */
 @Component
 public class CseAdapterListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CseAdapterListener.class);
 
     private final CseAdapterConfiguration cseAdapterConfiguration;
 
@@ -34,10 +37,13 @@ public class CseAdapterListener {
     @Bean
     public Function<TaskDto, CseRequest> handleRun() {
         return taskDto -> {
+            LOGGER.info("Handling timestamp {}", taskDto.getTimestamp());
             switch (cseAdapterConfiguration.getTargetProcess()) {
                 case "IDCC":
+                    LOGGER.info("Sending IDCC request");
                     return getIdccRequest(taskDto);
                 case "D2CC":
+                    LOGGER.info("Sending IDCC request");
                     return getD2ccRequest(taskDto);
                 default:
                     throw new NotImplementedException(String.format("Unknown target process for CSE: %s", cseAdapterConfiguration.getTargetProcess()));
