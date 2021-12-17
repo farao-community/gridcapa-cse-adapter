@@ -7,6 +7,7 @@
 package com.farao_community.farao.cse.adapter.app;
 
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
+import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import org.apache.commons.lang3.NotImplementedException;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
 import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -28,23 +29,27 @@ import java.util.stream.Collectors;
 public class CseAdapterListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(CseAdapterListener.class);
 
+    private final CseClient cseClient;
     private final CseAdapterConfiguration cseAdapterConfiguration;
 
-    public CseAdapterListener(CseAdapterConfiguration cseAdapterConfiguration) {
+    public CseAdapterListener(CseClient cseClient, CseAdapterConfiguration cseAdapterConfiguration) {
+        this.cseClient = cseClient;
         this.cseAdapterConfiguration = cseAdapterConfiguration;
     }
 
     @Bean
-    public Function<TaskDto, CseRequest> handleRun() {
+    public Consumer<TaskDto> handleRun() {
         return taskDto -> {
             LOGGER.info("Handling timestamp {}", taskDto.getTimestamp());
             switch (cseAdapterConfiguration.getTargetProcess()) {
                 case "IDCC":
                     LOGGER.info("Sending IDCC request");
-                    return getIdccRequest(taskDto);
+                    cseClient.run(getIdccRequest(taskDto));
+                    break;
                 case "D2CC":
                     LOGGER.info("Sending IDCC request");
-                    return getD2ccRequest(taskDto);
+                    cseClient.run(getD2ccRequest(taskDto));
+                    break;
                 default:
                     throw new NotImplementedException(String.format("Unknown target process for CSE: %s", cseAdapterConfiguration.getTargetProcess()));
             }
