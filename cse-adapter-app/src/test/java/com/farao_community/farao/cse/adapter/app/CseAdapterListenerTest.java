@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -109,7 +110,8 @@ class CseAdapterListenerTest {
         when(cseAdapterConfiguration.getTargetProcess()).thenReturn("INVALID");
         TaskDto d2ccTaskDto = getD2ccTaskDto();
 
-        assertThrows(NotImplementedException.class, () -> cseAdapterListener.handleRun().accept(d2ccTaskDto));
+        Consumer<TaskDto> handleRun = cseAdapterListener.handleRun();
+        assertThrows(NotImplementedException.class, () -> handleRun.accept(d2ccTaskDto));
     }
 
     @Test
