@@ -28,7 +28,7 @@
 
     <properties>
         <task-manager.api.version>0.1.0</task-manager.api.version>
-        <cse-runner.api.version>0.1.0</cse-runner.api.version>
+        <cse.version>0.2.0</cse.version>
         <spring-cloud.version>Hoxton.SR12</spring-cloud.version>
     </properties>
 
@@ -42,12 +42,12 @@
             <dependency>
                 <groupId>com.farao-community.farao</groupId>
                 <artifactId>gridcapa-cse-runner-api</artifactId>
-                <version>${cse-runner.api.version}</version>
+                <version>${cse.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.farao-community.farao</groupId>
                 <artifactId>gridcapa-cse-spring-boot-starter</artifactId>
-                <version>0.2.0-SNAPSHOT</version>
+                <version>${cse.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
