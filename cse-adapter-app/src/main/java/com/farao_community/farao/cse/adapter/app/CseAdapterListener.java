@@ -47,7 +47,7 @@ public class CseAdapterListener {
                     cseClient.run(getIdccRequest(taskDto));
                     break;
                 case "D2CC":
-                    LOGGER.info("Sending IDCC request");
+                    LOGGER.info("Sending D2CC request");
                     cseClient.run(getD2ccRequest(taskDto));
                     break;
                 default:
