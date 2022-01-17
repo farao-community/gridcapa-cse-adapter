@@ -7,7 +7,6 @@
 package com.farao_community.farao.cse.adapter.app;
 
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
-import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.api.resource.ProcessType;
 import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
@@ -22,11 +21,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,7 +48,7 @@ class CseAdapterListenerTest {
 
     private TaskDto getIdccTaskDto() {
         UUID id = UUID.randomUUID();
-        LocalDateTime timestamp = LocalDateTime.parse("2021-12-07T14:30");
+        OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> processFiles = new ArrayList<>();
         processFiles.add(new ProcessFileDto("CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp, "file://cgm.uct"));
         processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
@@ -61,12 +60,12 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("NTC2-CH", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp, "file://ch-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-FR", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp, "file://fr-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
-        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles);
+        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
     }
 
     private TaskDto getD2ccTaskDto() {
         UUID id = UUID.randomUUID();
-        LocalDateTime timestamp = LocalDateTime.parse("2021-12-07T14:30");
+        OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> processFiles = new ArrayList<>();
         processFiles.add(new ProcessFileDto("CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp, "file://cgm.uct"));
         processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
@@ -75,7 +74,7 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
         processFiles.add(new ProcessFileDto("VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp, "file://vulcanus.xls"));
         processFiles.add(new ProcessFileDto("TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp, "file://target-ch.xml"));
-        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles);
+        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
     }
 
     @Test
@@ -133,7 +132,7 @@ class CseAdapterListenerTest {
     @Test
     void testIdccWithMissingFileUrl() {
         UUID id = UUID.randomUUID();
-        LocalDateTime timestamp = LocalDateTime.parse("2021-12-07T14:30");
+        OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> processFiles = new ArrayList<>();
         processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
         processFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
@@ -144,7 +143,7 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("NTC2-CH", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp, "file://ch-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-FR", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp, "file://fr-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles);
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseAdapterListener.getIdccRequest(taskDto));
     }
@@ -172,7 +171,7 @@ class CseAdapterListenerTest {
     @Test
     void testD2ccWithMissingFileUrl() {
         UUID id = UUID.randomUUID();
-        LocalDateTime timestamp = LocalDateTime.parse("2021-12-07T14:30");
+        OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> processFiles = new ArrayList<>();
         processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
         processFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
@@ -180,7 +179,7 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
         processFiles.add(new ProcessFileDto("VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp, "file://vulcanus.xls"));
         processFiles.add(new ProcessFileDto("TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp, "file://target-ch.xml"));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles);
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseAdapterListener.getD2ccRequest(taskDto));
     }

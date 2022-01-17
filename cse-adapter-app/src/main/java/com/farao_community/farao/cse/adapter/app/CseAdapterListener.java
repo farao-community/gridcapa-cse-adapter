@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -64,7 +63,7 @@ public class CseAdapterListener {
             ));
         return CseRequest.idccProcess(
             taskDto.getId().toString(),
-            taskDto.getTimestamp().atZone(ZoneId.of("UTC")).toOffsetDateTime(),
+            taskDto.getTimestamp(),
             Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
             Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
             Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
@@ -89,7 +88,7 @@ public class CseAdapterListener {
             ));
         return CseRequest.d2ccProcess(
             taskDto.getId().toString(),
-            taskDto.getTimestamp().atZone(ZoneId.of("UTC")).toOffsetDateTime(),
+            taskDto.getTimestamp(),
             Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
             Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
             Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),

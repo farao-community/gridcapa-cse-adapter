@@ -27,7 +27,7 @@
     </modules>
 
     <properties>
-        <task-manager.api.version>0.1.0</task-manager.api.version>
+        <task-manager.api.version>0.3.0</task-manager.api.version>
         <cse.version>0.2.0</cse.version>
     </properties>
 
