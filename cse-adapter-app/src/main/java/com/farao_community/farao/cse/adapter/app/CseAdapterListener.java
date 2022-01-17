@@ -7,16 +7,18 @@
 package com.farao_community.farao.cse.adapter.app;
 
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
+import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import org.apache.commons.lang3.NotImplementedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.time.ZoneId;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -24,21 +26,29 @@ import java.util.stream.Collectors;
  */
 @Component
 public class CseAdapterListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CseAdapterListener.class);
 
+    private final CseClient cseClient;
     private final CseAdapterConfiguration cseAdapterConfiguration;
 
-    public CseAdapterListener(CseAdapterConfiguration cseAdapterConfiguration) {
+    public CseAdapterListener(CseClient cseClient, CseAdapterConfiguration cseAdapterConfiguration) {
+        this.cseClient = cseClient;
         this.cseAdapterConfiguration = cseAdapterConfiguration;
     }
 
     @Bean
-    public Function<TaskDto, CseRequest> handleRun() {
+    public Consumer<TaskDto> handleRun() {
         return taskDto -> {
+            LOGGER.info("Handling timestamp {}", taskDto.getTimestamp());
             switch (cseAdapterConfiguration.getTargetProcess()) {
                 case "IDCC":
-                    return getIdccRequest(taskDto);
+                    LOGGER.info("Sending IDCC request");
+                    cseClient.run(getIdccRequest(taskDto));
+                    break;
                 case "D2CC":
-                    return getD2ccRequest(taskDto);
+                    LOGGER.info("Sending D2CC request");
+                    cseClient.run(getD2ccRequest(taskDto));
+                    break;
                 default:
                     throw new NotImplementedException(String.format("Unknown target process for CSE: %s", cseAdapterConfiguration.getTargetProcess()));
             }
@@ -53,7 +63,7 @@ public class CseAdapterListener {
             ));
         return CseRequest.idccProcess(
             taskDto.getId().toString(),
-            taskDto.getTimestamp().atZone(ZoneId.of("UTC")).toOffsetDateTime(),
+            taskDto.getTimestamp(),
             Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
             Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
             Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
@@ -78,7 +88,7 @@ public class CseAdapterListener {
             ));
         return CseRequest.d2ccProcess(
             taskDto.getId().toString(),
-            taskDto.getTimestamp().atZone(ZoneId.of("UTC")).toOffsetDateTime(),
+            taskDto.getTimestamp(),
             Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
             Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
             Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
