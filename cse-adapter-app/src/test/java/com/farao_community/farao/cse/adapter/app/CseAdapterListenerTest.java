@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -83,7 +82,7 @@ class CseAdapterListenerTest {
         TaskDto idccTaskDto = getIdccTaskDto();
         CseRequest idccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.when(cseAdapterListener.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
-        cseAdapterListener.handleRun().accept(idccTaskDto);
+        cseAdapterListener.runRequestFromTaskDto(idccTaskDto);
         assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
     }
 
@@ -93,7 +92,7 @@ class CseAdapterListenerTest {
         TaskDto d2ccTaskDto = getD2ccTaskDto();
         CseRequest d2ccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.when(cseAdapterListener.getD2ccRequest(d2ccTaskDto)).thenReturn(d2ccCseRequest);
-        cseAdapterListener.handleRun().accept(d2ccTaskDto);
+        cseAdapterListener.runRequestFromTaskDto(d2ccTaskDto);
         assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
     }
 
@@ -102,8 +101,7 @@ class CseAdapterListenerTest {
         when(cseAdapterConfiguration.getTargetProcess()).thenReturn("INVALID");
         TaskDto d2ccTaskDto = getD2ccTaskDto();
 
-        Consumer<TaskDto> handleRun = cseAdapterListener.handleRun();
-        assertThrows(NotImplementedException.class, () -> handleRun.accept(d2ccTaskDto));
+        assertThrows(NotImplementedException.class, () -> cseAdapterListener.runRequestFromTaskDto(d2ccTaskDto));
     }
 
     @Test

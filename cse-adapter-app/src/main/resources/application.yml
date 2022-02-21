@@ -10,6 +10,11 @@ spring:
         handleRun-in-0:
           binder: rabbit
           destination: cse-idcc-launch-task
+      rabbit:
+        bindings:
+          handleRun-in-0:
+            consumer:
+              acknowledge-mode: MANUAL
 
 cse-cc-runner:
   binding:
