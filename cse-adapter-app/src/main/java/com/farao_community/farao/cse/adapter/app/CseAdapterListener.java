@@ -49,11 +49,11 @@ public class CseAdapterListener {
         LOGGER.info("Handling timestamp {}", taskDto.getTimestamp());
         switch (cseAdapterConfiguration.getTargetProcess()) {
             case "IDCC":
-                LOGGER.info("Sending IDCC request");
+                LOGGER.info("Sending IDCC request for TS: {}", taskDto.getTimestamp());
                 CompletableFuture.runAsync(() -> cseClient.run(getIdccRequest(taskDto)));
                 break;
             case "D2CC":
-                LOGGER.info("Sending D2CC request");
+                LOGGER.info("Sending D2CC request for TS: {}", taskDto.getTimestamp());
                 CompletableFuture.runAsync(() -> cseClient.run(getD2ccRequest(taskDto)));
                 break;
             default:
