@@ -82,7 +82,7 @@ class CseAdapterListenerTest {
         TaskDto idccTaskDto = getIdccTaskDto();
         CseRequest idccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.when(cseAdapterListener.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
-        cseAdapterListener.runRequestFromTaskDto(idccTaskDto);
+        cseAdapterListener.runRequest(idccTaskDto);
         assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
     }
 
@@ -92,7 +92,7 @@ class CseAdapterListenerTest {
         TaskDto d2ccTaskDto = getD2ccTaskDto();
         CseRequest d2ccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.when(cseAdapterListener.getD2ccRequest(d2ccTaskDto)).thenReturn(d2ccCseRequest);
-        cseAdapterListener.runRequestFromTaskDto(d2ccTaskDto);
+        cseAdapterListener.runRequest(d2ccTaskDto);
         assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
     }
 
@@ -101,7 +101,7 @@ class CseAdapterListenerTest {
         when(cseAdapterConfiguration.getTargetProcess()).thenReturn("INVALID");
         TaskDto d2ccTaskDto = getD2ccTaskDto();
 
-        assertThrows(NotImplementedException.class, () -> cseAdapterListener.runRequestFromTaskDto(d2ccTaskDto));
+        assertThrows(NotImplementedException.class, () -> cseAdapterListener.runRequest(d2ccTaskDto));
     }
 
     @Test

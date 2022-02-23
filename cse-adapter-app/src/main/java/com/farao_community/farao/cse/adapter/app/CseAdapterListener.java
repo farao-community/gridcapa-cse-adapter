@@ -10,20 +10,16 @@ import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
-import com.rabbitmq.client.Channel;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.context.annotation.Bean;
-import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
-import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -43,34 +39,22 @@ public class CseAdapterListener {
     }
 
     @Bean
-    public Consumer<Flux<Message<TaskDto>>> handleRun() {
+    public Consumer<Flux<TaskDto>> handleRun() {
         return f -> f
             .onErrorContinue((t, r) -> LOGGER.error(t.getMessage(), t))
-            .subscribe(this::runRequestFromMessage);
+            .subscribe(this::runRequest);
     }
 
-    void runRequestFromMessage(Message<TaskDto> message) {
-        Channel channel = Objects.requireNonNull(message.getHeaders().get(AmqpHeaders.CHANNEL, Channel.class));
-        Long deliveryTag = Objects.requireNonNull(message.getHeaders().get(AmqpHeaders.DELIVERY_TAG, Long.class));
-        try {
-            channel.basicAck(deliveryTag, false);
-        } catch (IOException e) {
-            LOGGER.error("Impossible to ack CSE run message", e);
-            throw new CseAdapterException("Impossible to ack CSE run message");
-        }
-        runRequestFromTaskDto(Objects.requireNonNull(message.getPayload()));
-    }
-
-    void runRequestFromTaskDto(TaskDto taskDto) {
+    void runRequest(TaskDto taskDto) {
         LOGGER.info("Handling timestamp {}", taskDto.getTimestamp());
         switch (cseAdapterConfiguration.getTargetProcess()) {
             case "IDCC":
                 LOGGER.info("Sending IDCC request");
-                cseClient.run(getIdccRequest(taskDto));
+                CompletableFuture.runAsync(() -> cseClient.run(getIdccRequest(taskDto)));
                 break;
             case "D2CC":
                 LOGGER.info("Sending D2CC request");
-                cseClient.run(getD2ccRequest(taskDto));
+                CompletableFuture.runAsync(() -> cseClient.run(getD2ccRequest(taskDto)));
                 break;
             default:
                 throw new NotImplementedException(String.format("Unknown target process for CSE: %s", cseAdapterConfiguration.getTargetProcess()));
