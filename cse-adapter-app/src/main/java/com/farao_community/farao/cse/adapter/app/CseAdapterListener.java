@@ -46,7 +46,6 @@ public class CseAdapterListener {
     }
 
     void runRequest(TaskDto taskDto) {
-        LOGGER.info("Handling timestamp {}", taskDto.getTimestamp());
         switch (cseAdapterConfiguration.getTargetProcess()) {
             case "IDCC":
                 LOGGER.info("Sending IDCC request for TS: {}", taskDto.getTimestamp());
