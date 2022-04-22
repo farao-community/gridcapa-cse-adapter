@@ -13,7 +13,9 @@ import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileStatus;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
+import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.apache.commons.lang3.NotImplementedException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.mockito.Mockito;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,6 +47,15 @@ class CseAdapterListenerTest {
 
     @MockBean
     private CseClient cseClient;
+
+    @MockBean
+    private MinioAdapter minioAdapter;
+
+    @BeforeEach
+    void setUp() {
+        Mockito.doAnswer(a -> null).when(cseAdapterListener).uploadTargetChFile(any());
+        Mockito.when(minioAdapter.generatePreSignedUrl(any())).thenReturn("file://target-ch.xml");
+    }
 
     private TaskDto getIdccTaskDto() {
         UUID id = UUID.randomUUID();
@@ -71,8 +83,6 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
         processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
-        processFiles.add(new ProcessFileDto("VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp, "file://vulcanus.xls"));
-        processFiles.add(new ProcessFileDto("TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp, "file://target-ch.xml"));
         return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
     }
 
@@ -91,7 +101,7 @@ class CseAdapterListenerTest {
         when(cseAdapterConfiguration.getTargetProcess()).thenReturn("D2CC");
         TaskDto d2ccTaskDto = getD2ccTaskDto();
         CseRequest d2ccCseRequest = Mockito.mock(CseRequest.class);
-        Mockito.when(cseAdapterListener.getD2ccRequest(d2ccTaskDto)).thenReturn(d2ccCseRequest);
+        Mockito.doReturn(d2ccCseRequest).when(cseAdapterListener).getD2ccRequest(d2ccTaskDto);
         cseAdapterListener.runRequest(d2ccTaskDto);
         assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
     }
@@ -159,7 +169,6 @@ class CseAdapterListenerTest {
         assertEquals("file://glsk.xml", cseRequest.getMergedGlskUrl());
         assertEquals("file://ntc.xml", cseRequest.getYearlyNtcUrl());
         assertEquals("file://ntc-red.xml", cseRequest.getNtcReductionsUrl());
-        assertEquals("file://vulcanus.xls", cseRequest.getVulcanusUrl());
         assertEquals("file://target-ch.xml", cseRequest.getTargetChUrl());
         assertEquals(50, cseRequest.getDichotomyPrecision());
         assertEquals(650, cseRequest.getInitialDichotomyStep());
@@ -175,7 +184,6 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
         processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
-        processFiles.add(new ProcessFileDto("VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp, "file://vulcanus.xls"));
         processFiles.add(new ProcessFileDto("TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp, "file://target-ch.xml"));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
 

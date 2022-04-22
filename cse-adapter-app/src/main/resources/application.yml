@@ -15,5 +15,14 @@ cse-cc-runner:
   binding:
     destination: cse-request
 
+minio-adapter:
+  url: http://minio:9000/
+  base-path: /CSE/D2CC/
+  bucket: gridcapa
+  access-key: gridcapa
+  secret-key: gridcapa
+
 cse-adapter:
   target-process: IDCC
+  target-ch-fs-location: /path/to/fs/location
+  target-ch-minio-location: /path/to/minio/location
