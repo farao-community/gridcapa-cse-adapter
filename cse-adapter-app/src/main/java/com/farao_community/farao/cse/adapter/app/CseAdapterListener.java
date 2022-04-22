@@ -10,6 +10,7 @@ import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
+import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -32,10 +37,12 @@ public class CseAdapterListener {
 
     private final CseClient cseClient;
     private final CseAdapterConfiguration cseAdapterConfiguration;
+    private final MinioAdapter minioAdapter;
 
-    public CseAdapterListener(CseClient cseClient, CseAdapterConfiguration cseAdapterConfiguration) {
+    public CseAdapterListener(CseClient cseClient, CseAdapterConfiguration cseAdapterConfiguration, MinioAdapter minioAdapter) {
         this.cseClient = cseClient;
         this.cseAdapterConfiguration = cseAdapterConfiguration;
+        this.minioAdapter = minioAdapter;
     }
 
     @Bean
@@ -91,6 +98,9 @@ public class CseAdapterListener {
                 ProcessFileDto::getFileType,
                 ProcessFileDto::getFileUrl
             ));
+
+        uploadTargetChFile(taskDto.getTimestamp());
+
         return CseRequest.d2ccProcess(
             taskDto.getId().toString(),
             taskDto.getTimestamp(),
@@ -98,12 +108,24 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
             Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
             Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
-            Optional.ofNullable(processFileUrlByType.get("TARGET-CH")).orElseThrow(() -> new CseAdapterException("TARGET-CH type not found")),
-            Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
+            minioAdapter.generatePreSignedUrl(cseAdapterConfiguration.getTargetChMinioPath()),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
             50,
             650,
             null
         );
+    }
+
+    void uploadTargetChFile(OffsetDateTime timestamp) {
+        try (InputStream is = new FileInputStream(cseAdapterConfiguration.getTargetChFsPath())) {
+            minioAdapter.uploadInputForTimestamp(
+                cseAdapterConfiguration.getTargetChMinioPath(),
+                is,
+                "CSE_D2CC",
+                "TARGET_CH",
+                timestamp);
+        } catch (IOException e) {
+            throw new CseAdapterException("Impossible to find Target CH file");
+        }
     }
 }

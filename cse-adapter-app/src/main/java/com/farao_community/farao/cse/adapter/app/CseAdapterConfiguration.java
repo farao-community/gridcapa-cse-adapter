@@ -18,7 +18,21 @@ public class CseAdapterConfiguration {
     @Value("${cse-adapter.target-process}")
     private String targetProcess;
 
+    @Value("${cse-adapter.target-ch-fs-location}")
+    private String targetChFsPath;
+
+    @Value("${cse-adapter.target-ch-minio-location}")
+    private String targetChMinioPath;
+
     public String getTargetProcess() {
         return targetProcess;
+    }
+
+    public String getTargetChFsPath() {
+        return targetChFsPath;
+    }
+
+    public String getTargetChMinioPath() {
+        return targetChMinioPath;
     }
 }
