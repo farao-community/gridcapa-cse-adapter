@@ -118,7 +118,7 @@ public class CseAdapterListener {
 
     void uploadTargetChFile(OffsetDateTime timestamp) {
         try (InputStream is = new FileInputStream(cseAdapterConfiguration.getTargetChFsPath())) {
-            minioAdapter.uploadInputForTimestamp(
+            minioAdapter.uploadArtifactForTimestamp(
                 cseAdapterConfiguration.getTargetChMinioPath(),
                 is,
                 "CSE_D2CC",
