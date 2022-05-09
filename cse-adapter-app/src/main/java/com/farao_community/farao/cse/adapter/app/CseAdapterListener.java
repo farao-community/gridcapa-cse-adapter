@@ -9,7 +9,6 @@ package com.farao_community.farao.cse.adapter.app;
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.starter.CseClient;
-import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.apache.commons.lang3.NotImplementedException;
@@ -23,12 +22,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -40,11 +36,13 @@ public class CseAdapterListener {
     private final CseClient cseClient;
     private final CseAdapterConfiguration cseAdapterConfiguration;
     private final MinioAdapter minioAdapter;
+    private final FileImporter fileImporter;
 
-    public CseAdapterListener(CseClient cseClient, CseAdapterConfiguration cseAdapterConfiguration, MinioAdapter minioAdapter) {
+    public CseAdapterListener(CseClient cseClient, CseAdapterConfiguration cseAdapterConfiguration, MinioAdapter minioAdapter, FileImporter fileImporter) {
         this.cseClient = cseClient;
         this.cseAdapterConfiguration = cseAdapterConfiguration;
         this.minioAdapter = minioAdapter;
+        this.fileImporter = fileImporter;
     }
 
     @Bean
@@ -72,6 +70,16 @@ public class CseAdapterListener {
     CseRequest getIdccRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
             .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
+
+        List<String> forcedPrasIds = null;
+        double initialDichotomyStep = 650.;
+        Optional<String> forcedPrasUrlOpt = Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS"));
+        if (forcedPrasUrlOpt.isPresent()) {
+            ForcedPras forcedPras = fileImporter.importInputForcedPras(forcedPrasUrlOpt.get());
+            forcedPrasIds = forcedPras.getForcedPrasIds();
+            initialDichotomyStep = forcedPras.getInitialDichotomyStep();
+        }
+
         return CseRequest.idccProcess(
             taskDto.getId().toString(),
             taskDto.getTimestamp(),
@@ -85,21 +93,26 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
             Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS")).orElse(null),
+            forcedPrasIds,
             50,
-            650,
+            initialDichotomyStep,
             null
         );
     }
 
     CseRequest getD2ccRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(Collectors.toMap(
-                ProcessFileDto::getFileType,
-                ProcessFileDto::getFileUrl
-            ));
-
+            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
         uploadTargetChFile(taskDto.getTimestamp());
+
+        List<String> forcedPrasIds = null;
+        Optional<String> forcedPrasUrlOpt = Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS"));
+        double initialDichotomyStep = 650.;
+        if (forcedPrasUrlOpt.isPresent()) {
+            ForcedPras forcedPras = fileImporter.importInputForcedPras(forcedPrasUrlOpt.get());
+            forcedPrasIds = forcedPras.getForcedPrasIds();
+            initialDichotomyStep = forcedPras.getInitialDichotomyStep();
+        }
 
         return CseRequest.d2ccProcess(
             taskDto.getId().toString(),
@@ -110,9 +123,9 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
             minioAdapter.generatePreSignedUrl(cseAdapterConfiguration.getTargetChMinioPath()),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS")).orElse(null),
+            forcedPrasIds,
             50,
-            650,
+            initialDichotomyStep,
             null
         );
     }
