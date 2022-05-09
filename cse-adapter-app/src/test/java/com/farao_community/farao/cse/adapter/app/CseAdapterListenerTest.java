@@ -71,6 +71,7 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("NTC2-CH", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp, "file://ch-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-FR", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp, "file://fr-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("FORCED-PRAS", ProcessFileStatus.VALIDATED, "forced-pras", timestamp, "file://forced-pras.json"));
         return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
     }
 
@@ -83,6 +84,7 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
         processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
+        processFiles.add(new ProcessFileDto("FORCED-PRAS", ProcessFileStatus.VALIDATED, "forced-pras", timestamp, "file://forced-pras.json"));
         return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
     }
 

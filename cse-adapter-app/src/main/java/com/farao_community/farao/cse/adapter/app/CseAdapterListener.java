@@ -7,6 +7,7 @@
 package com.farao_community.farao.cse.adapter.app;
 
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
+import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
@@ -22,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -56,11 +58,11 @@ public class CseAdapterListener {
         switch (cseAdapterConfiguration.getTargetProcess()) {
             case "IDCC":
                 LOGGER.info("Sending IDCC request for TS: {}", taskDto.getTimestamp());
-                CompletableFuture.runAsync(() -> cseClient.run(getIdccRequest(taskDto)));
+                CompletableFuture.runAsync(() -> cseClient.run(getIdccRequest(taskDto), CseResponse.class));
                 break;
             case "D2CC":
                 LOGGER.info("Sending D2CC request for TS: {}", taskDto.getTimestamp());
-                CompletableFuture.runAsync(() -> cseClient.run(getD2ccRequest(taskDto)));
+                CompletableFuture.runAsync(() -> cseClient.run(getD2ccRequest(taskDto), CseResponse.class));
                 break;
             default:
                 throw new NotImplementedException(String.format("Unknown target process for CSE: %s", cseAdapterConfiguration.getTargetProcess()));
@@ -69,10 +71,7 @@ public class CseAdapterListener {
 
     CseRequest getIdccRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(Collectors.toMap(
-                ProcessFileDto::getFileType,
-                ProcessFileDto::getFileUrl
-            ));
+            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
         return CseRequest.idccProcess(
             taskDto.getId().toString(),
             taskDto.getTimestamp(),
@@ -86,6 +85,7 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
             Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
+            Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS")).orElse(null),
             50,
             650,
             null
@@ -110,6 +110,7 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
             minioAdapter.generatePreSignedUrl(cseAdapterConfiguration.getTargetChMinioPath()),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
+            Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS")).orElse(null),
             50,
             650,
             null
