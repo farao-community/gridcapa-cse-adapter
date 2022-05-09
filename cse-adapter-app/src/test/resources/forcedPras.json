@@ -1,4 +1,4 @@
 {
-  "initialDichotomyStep": 1000,
+  "initialDichotomyIndex": 10,
   "forcedPrasIds":  ["pra1", "pra2"]
 }

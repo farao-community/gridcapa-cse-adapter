@@ -15,7 +15,7 @@ class FileImporterTest {
     @Test
     void testForcedPrasImport() {
         ForcedPras forcedPras = fileImporter.importInputForcedPras(ClassLoader.getSystemResource("forcedPras.json").toString());
-        assertEquals(1000., forcedPras.getInitialDichotomyStep(), 0.);
+        assertEquals(10., forcedPras.getInitialDichotomyIndex(), 0.);
         assertEquals(2, forcedPras.getForcedPrasIds().size());
     }
 }

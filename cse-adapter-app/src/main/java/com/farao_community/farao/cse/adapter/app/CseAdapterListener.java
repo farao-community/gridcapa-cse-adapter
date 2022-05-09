@@ -72,12 +72,12 @@ public class CseAdapterListener {
             .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
 
         List<String> forcedPrasIds = null;
-        double initialDichotomyStep = 650.;
+        Double initialDichotomyIndex = null;
         Optional<String> forcedPrasUrlOpt = Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS"));
         if (forcedPrasUrlOpt.isPresent()) {
             ForcedPras forcedPras = fileImporter.importInputForcedPras(forcedPrasUrlOpt.get());
             forcedPrasIds = forcedPras.getForcedPrasIds();
-            initialDichotomyStep = forcedPras.getInitialDichotomyStep();
+            initialDichotomyIndex = forcedPras.getInitialDichotomyIndex();
         }
 
         return CseRequest.idccProcess(
@@ -95,8 +95,8 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
             forcedPrasIds,
             50,
-            initialDichotomyStep,
-            null
+            650,
+            initialDichotomyIndex
         );
     }
 
@@ -107,11 +107,11 @@ public class CseAdapterListener {
 
         List<String> forcedPrasIds = null;
         Optional<String> forcedPrasUrlOpt = Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS"));
-        double initialDichotomyStep = 650.;
+        Double initialDichotomyIndex = null;
         if (forcedPrasUrlOpt.isPresent()) {
             ForcedPras forcedPras = fileImporter.importInputForcedPras(forcedPrasUrlOpt.get());
             forcedPrasIds = forcedPras.getForcedPrasIds();
-            initialDichotomyStep = forcedPras.getInitialDichotomyStep();
+            initialDichotomyIndex = forcedPras.getInitialDichotomyIndex();
         }
 
         return CseRequest.d2ccProcess(
@@ -125,8 +125,8 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
             forcedPrasIds,
             50,
-            initialDichotomyStep,
-            null
+            650,
+            initialDichotomyIndex
         );
     }
 
