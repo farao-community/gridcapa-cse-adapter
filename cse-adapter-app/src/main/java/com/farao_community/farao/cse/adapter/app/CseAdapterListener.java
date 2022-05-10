@@ -137,7 +137,7 @@ public class CseAdapterListener {
 
         private UserConfigurationWrapper(String url) {
             Optional<UserConfiguration> userConfigOpt = Optional.ofNullable(url).map(fileImporter::importUserConfiguration);
-            forcedPrasIds = userConfigOpt.map(UserConfiguration::getForcedPrasIds).orElse(null);
+            forcedPrasIds = userConfigOpt.map(UserConfiguration::getForcedPrasIds).orElse(Collections.emptyList());
             initialDichotomyIndex = userConfigOpt.map(UserConfiguration::getInitialDichotomyIndex).orElse(null);
         }
     }

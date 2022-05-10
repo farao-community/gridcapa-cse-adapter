@@ -6,17 +6,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class UserConfiguration {
-    private final double initialDichotomyIndex;
+    private final Double initialDichotomyIndex;
     private final List<String> forcedPrasIds;
 
     @JsonCreator
-    public UserConfiguration(@JsonProperty("initialDichotomyIndex") double initialDichotomyIndex,
+    public UserConfiguration(@JsonProperty("initialDichotomyIndex") Double initialDichotomyIndex,
                              @JsonProperty("forcedPrasIds") List<String> forcedPrasIds) {
         this.initialDichotomyIndex = initialDichotomyIndex;
         this.forcedPrasIds = forcedPrasIds;
     }
 
-    public double getInitialDichotomyIndex() {
+    public Double getInitialDichotomyIndex() {
         return initialDichotomyIndex;
     }
 
