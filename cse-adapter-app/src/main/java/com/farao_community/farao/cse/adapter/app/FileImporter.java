@@ -19,12 +19,12 @@ public class FileImporter {
         this.urlValidationService = urlValidationService;
     }
 
-    public ForcedPras importInputForcedPras(String inputForcesPrasUrl) {
-        try (InputStream is = urlValidationService.openUrlStream(inputForcesPrasUrl)) {
+    public UserConfiguration importUserConfiguration(String userConfigurationUrl) {
+        try (InputStream is = urlValidationService.openUrlStream(userConfigurationUrl)) {
             ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(is.readAllBytes(), ForcedPras.class);
+            return objectMapper.readValue(is.readAllBytes(), UserConfiguration.class);
         } catch (IOException e) {
-            throw new CseInvalidDataException(String.format("Cannot import forced PRAs file: %s, check file format", getFilenameFromUrl(inputForcesPrasUrl)));
+            throw new CseInvalidDataException(String.format("Cannot import forced PRAs file: %s, check file format", getFilenameFromUrl(userConfigurationUrl)));
         }
     }
 

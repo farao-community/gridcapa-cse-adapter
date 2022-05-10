@@ -35,5 +35,4 @@ public class CseAdapterConfiguration {
     public String getTargetChMinioPath() {
         return targetChMinioPath;
     }
-
 }

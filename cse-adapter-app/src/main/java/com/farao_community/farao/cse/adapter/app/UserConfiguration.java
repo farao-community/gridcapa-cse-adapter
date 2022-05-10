@@ -5,12 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class ForcedPras {
+public class UserConfiguration {
     private final double initialDichotomyIndex;
     private final List<String> forcedPrasIds;
 
     @JsonCreator
-    public ForcedPras(@JsonProperty("initialDichotomyIndex") double initialDichotomyIndex, @JsonProperty("forcedPrasIds") List<String> forcedPrasIds) {
+    public UserConfiguration(@JsonProperty("initialDichotomyIndex") double initialDichotomyIndex,
+                             @JsonProperty("forcedPrasIds") List<String> forcedPrasIds) {
         this.initialDichotomyIndex = initialDichotomyIndex;
         this.forcedPrasIds = forcedPrasIds;
     }

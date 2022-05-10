@@ -9,6 +9,7 @@ package com.farao_community.farao.cse.adapter.app;
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.starter.CseClient;
+import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.apache.commons.lang3.NotImplementedException;
@@ -25,6 +26,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -69,16 +71,9 @@ public class CseAdapterListener {
 
     CseRequest getIdccRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
+            .collect(Collectors.toMap(ProcessFileDto::getFileType, ProcessFileDto::getFileUrl));
 
-        List<String> forcedPrasIds = null;
-        Double initialDichotomyIndex = null;
-        Optional<String> forcedPrasUrlOpt = Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS"));
-        if (forcedPrasUrlOpt.isPresent()) {
-            ForcedPras forcedPras = fileImporter.importInputForcedPras(forcedPrasUrlOpt.get());
-            forcedPrasIds = forcedPras.getForcedPrasIds();
-            initialDichotomyIndex = forcedPras.getInitialDichotomyIndex();
-        }
+        UserConfigurationWrapper userConfigurationWrapper = new UserConfigurationWrapper(processFileUrlByType.get("USER-CONFIG"));
 
         return CseRequest.idccProcess(
             taskDto.getId().toString(),
@@ -93,26 +88,19 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
             Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            forcedPrasIds,
+            userConfigurationWrapper.forcedPrasIds,
             50,
             650,
-            initialDichotomyIndex
+            userConfigurationWrapper.initialDichotomyIndex
         );
     }
 
     CseRequest getD2ccRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
-        uploadTargetChFile(taskDto.getTimestamp());
+            .collect(Collectors.toMap(ProcessFileDto::getFileType, ProcessFileDto::getFileUrl));
 
-        List<String> forcedPrasIds = null;
-        Optional<String> forcedPrasUrlOpt = Optional.ofNullable(processFileUrlByType.get("FORCED-PRAS"));
-        Double initialDichotomyIndex = null;
-        if (forcedPrasUrlOpt.isPresent()) {
-            ForcedPras forcedPras = fileImporter.importInputForcedPras(forcedPrasUrlOpt.get());
-            forcedPrasIds = forcedPras.getForcedPrasIds();
-            initialDichotomyIndex = forcedPras.getInitialDichotomyIndex();
-        }
+        uploadTargetChFile(taskDto.getTimestamp());
+        UserConfigurationWrapper userConfigurationWrapper = new UserConfigurationWrapper(processFileUrlByType.get("USER-CONFIG"));
 
         return CseRequest.d2ccProcess(
             taskDto.getId().toString(),
@@ -123,10 +111,10 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
             minioAdapter.generatePreSignedUrl(cseAdapterConfiguration.getTargetChMinioPath()),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            forcedPrasIds,
+            userConfigurationWrapper.forcedPrasIds,
             50,
             650,
-            initialDichotomyIndex
+            userConfigurationWrapper.initialDichotomyIndex
         );
     }
 
@@ -140,6 +128,17 @@ public class CseAdapterListener {
                 timestamp);
         } catch (IOException e) {
             throw new CseAdapterException("Impossible to find Target CH file");
+        }
+    }
+
+    private final class UserConfigurationWrapper {
+        private final List<String> forcedPrasIds;
+        private final Double initialDichotomyIndex;
+
+        private UserConfigurationWrapper(String url) {
+            Optional<UserConfiguration> userConfigOpt = Optional.ofNullable(url).map(fileImporter::importUserConfiguration);
+            forcedPrasIds = userConfigOpt.map(UserConfiguration::getForcedPrasIds).orElse(null);
+            initialDichotomyIndex = userConfigOpt.map(UserConfiguration::getInitialDichotomyIndex).orElse(null);
         }
     }
 }
