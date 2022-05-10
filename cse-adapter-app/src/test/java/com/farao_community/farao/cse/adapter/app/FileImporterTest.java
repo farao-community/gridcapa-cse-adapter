@@ -25,11 +25,4 @@ class FileImporterTest {
         assertEquals(10., userConfiguration.getInitialDichotomyIndex(), 0.);
         assertEquals(0, userConfiguration.getForcedPrasIds().size());
     }
-
-    @Test
-    void testUserConfigurationWithNullForForcedPrasImport() {
-        UserConfiguration userConfiguration = fileImporter.importUserConfiguration(ClassLoader.getSystemResource("forcedPras-null.json").toString());
-        assertEquals(10., userConfiguration.getInitialDichotomyIndex(), 0.);
-        assertEquals(0, userConfiguration.getForcedPrasIds().size());
-    }
 }
