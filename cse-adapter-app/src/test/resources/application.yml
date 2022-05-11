@@ -27,5 +27,5 @@ cse-adapter:
   target-ch-fs-location: /path/to/fs/location
   target-ch-minio-location: /path/to/minio/location
   whitelist:
-    - http://minio:9000/
+    - file:/
     - http://localhost:9000/

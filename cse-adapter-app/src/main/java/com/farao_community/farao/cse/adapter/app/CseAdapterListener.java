@@ -7,8 +7,8 @@
 package com.farao_community.farao.cse.adapter.app;
 
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
+import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.starter.CseClient;
-import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.apache.commons.lang3.NotImplementedException;
@@ -22,11 +22,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -38,11 +36,13 @@ public class CseAdapterListener {
     private final CseClient cseClient;
     private final CseAdapterConfiguration cseAdapterConfiguration;
     private final MinioAdapter minioAdapter;
+    private final FileImporter fileImporter;
 
-    public CseAdapterListener(CseClient cseClient, CseAdapterConfiguration cseAdapterConfiguration, MinioAdapter minioAdapter) {
+    public CseAdapterListener(CseClient cseClient, CseAdapterConfiguration cseAdapterConfiguration, MinioAdapter minioAdapter, FileImporter fileImporter) {
         this.cseClient = cseClient;
         this.cseAdapterConfiguration = cseAdapterConfiguration;
         this.minioAdapter = minioAdapter;
+        this.fileImporter = fileImporter;
     }
 
     @Bean
@@ -53,26 +53,28 @@ public class CseAdapterListener {
     }
 
     void runRequest(TaskDto taskDto) {
+        CseRequest cseRequest;
         switch (cseAdapterConfiguration.getTargetProcess()) {
             case "IDCC":
                 LOGGER.info("Sending IDCC request for TS: {}", taskDto.getTimestamp());
-                CompletableFuture.runAsync(() -> cseClient.run(getIdccRequest(taskDto)));
+                cseRequest = getIdccRequest(taskDto);
                 break;
             case "D2CC":
                 LOGGER.info("Sending D2CC request for TS: {}", taskDto.getTimestamp());
-                CompletableFuture.runAsync(() -> cseClient.run(getD2ccRequest(taskDto)));
+                cseRequest = getD2ccRequest(taskDto);
                 break;
             default:
                 throw new NotImplementedException(String.format("Unknown target process for CSE: %s", cseAdapterConfiguration.getTargetProcess()));
         }
+        CompletableFuture.runAsync(() -> cseClient.run(cseRequest, CseRequest.class, CseResponse.class));
     }
 
     CseRequest getIdccRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(Collectors.toMap(
-                ProcessFileDto::getFileType,
-                ProcessFileDto::getFileUrl
-            ));
+            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
+
+        UserConfigurationWrapper userConfigurationWrapper = new UserConfigurationWrapper(processFileUrlByType.get("USER-CONFIG"));
+
         return CseRequest.idccProcess(
             taskDto.getId().toString(),
             taskDto.getTimestamp(),
@@ -86,20 +88,19 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
             Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
+            userConfigurationWrapper.forcedPrasIds,
             50,
             650,
-            null
+            userConfigurationWrapper.initialDichotomyIndex
         );
     }
 
     CseRequest getD2ccRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(Collectors.toMap(
-                ProcessFileDto::getFileType,
-                ProcessFileDto::getFileUrl
-            ));
+            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
 
         uploadTargetChFile(taskDto.getTimestamp());
+        UserConfigurationWrapper userConfigurationWrapper = new UserConfigurationWrapper(processFileUrlByType.get("USER-CONFIG"));
 
         return CseRequest.d2ccProcess(
             taskDto.getId().toString(),
@@ -110,9 +111,10 @@ public class CseAdapterListener {
             Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
             minioAdapter.generatePreSignedUrl(cseAdapterConfiguration.getTargetChMinioPath()),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
+            userConfigurationWrapper.forcedPrasIds,
             50,
             650,
-            null
+            userConfigurationWrapper.initialDichotomyIndex
         );
     }
 
@@ -126,6 +128,17 @@ public class CseAdapterListener {
                 timestamp);
         } catch (IOException e) {
             throw new CseAdapterException("Impossible to find Target CH file");
+        }
+    }
+
+    private final class UserConfigurationWrapper {
+        private final List<String> forcedPrasIds;
+        private final Double initialDichotomyIndex;
+
+        private UserConfigurationWrapper(String url) {
+            Optional<UserConfiguration> userConfigOpt = Optional.ofNullable(url).map(fileImporter::importUserConfiguration);
+            forcedPrasIds = userConfigOpt.map(UserConfiguration::getForcedPrasIds).orElse(Collections.emptyList());
+            initialDichotomyIndex = userConfigOpt.map(UserConfiguration::getInitialDichotomyIndex).orElse(null);
         }
     }
 }

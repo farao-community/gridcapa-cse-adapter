@@ -8,7 +8,6 @@ package com.farao_community.farao.cse.adapter.app;
 
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.api.resource.ProcessType;
-import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileStatus;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
@@ -46,9 +45,6 @@ class CseAdapterListenerTest {
     private CseAdapterConfiguration cseAdapterConfiguration;
 
     @MockBean
-    private CseClient cseClient;
-
-    @MockBean
     private MinioAdapter minioAdapter;
 
     @BeforeEach
@@ -57,7 +53,7 @@ class CseAdapterListenerTest {
         Mockito.when(minioAdapter.generatePreSignedUrl(any())).thenReturn("file://target-ch.xml");
     }
 
-    private TaskDto getIdccTaskDto() {
+    private TaskDto getIdccTaskDto(String userConfigFile) {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> processFiles = new ArrayList<>();
@@ -71,10 +67,12 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("NTC2-CH", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp, "file://ch-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-FR", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp, "file://fr-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
+        processFiles.add(new ProcessFileDto("USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
+            timestamp, ClassLoader.getSystemResource(userConfigFile).toString()));
         return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
     }
 
-    private TaskDto getD2ccTaskDto() {
+    private TaskDto getD2ccTaskDto(String userConfigFile) {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> processFiles = new ArrayList<>();
@@ -83,13 +81,15 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
         processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
+        processFiles.add(new ProcessFileDto("USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
+            timestamp, ClassLoader.getSystemResource(userConfigFile).toString()));
         return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
     }
 
     @Test
     void testAdapterWithIdccConfig() {
         when(cseAdapterConfiguration.getTargetProcess()).thenReturn("IDCC");
-        TaskDto idccTaskDto = getIdccTaskDto();
+        TaskDto idccTaskDto = getIdccTaskDto("forcedPras.json");
         CseRequest idccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.when(cseAdapterListener.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
         cseAdapterListener.runRequest(idccTaskDto);
@@ -99,7 +99,7 @@ class CseAdapterListenerTest {
     @Test
     void testAdapterWithD2ccConfig() {
         when(cseAdapterConfiguration.getTargetProcess()).thenReturn("D2CC");
-        TaskDto d2ccTaskDto = getD2ccTaskDto();
+        TaskDto d2ccTaskDto = getD2ccTaskDto("forcedPras.json");
         CseRequest d2ccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.doReturn(d2ccCseRequest).when(cseAdapterListener).getD2ccRequest(d2ccTaskDto);
         cseAdapterListener.runRequest(d2ccTaskDto);
@@ -109,14 +109,14 @@ class CseAdapterListenerTest {
     @Test
     void testAdapterWithInvalidConfig() {
         when(cseAdapterConfiguration.getTargetProcess()).thenReturn("INVALID");
-        TaskDto d2ccTaskDto = getD2ccTaskDto();
+        TaskDto d2ccTaskDto = getD2ccTaskDto("forcedPras.json");
 
         assertThrows(NotImplementedException.class, () -> cseAdapterListener.runRequest(d2ccTaskDto));
     }
 
     @Test
     void testIdccSuccess() {
-        TaskDto taskDto = getIdccTaskDto();
+        TaskDto taskDto = getIdccTaskDto("forcedPras.json");
 
         CseRequest cseRequest = cseAdapterListener.getIdccRequest(taskDto);
         assertEquals(ProcessType.IDCC, cseRequest.getProcessType());
@@ -132,8 +132,18 @@ class CseAdapterListenerTest {
         assertEquals("file://ch-ntc2.xml", cseRequest.getNtc2ChItUrl());
         assertEquals("file://fr-ntc2.xml", cseRequest.getNtc2FrItUrl());
         assertEquals("file://si-ntc2.xml", cseRequest.getNtc2SiItUrl());
+        assertEquals(2, cseRequest.getForcedPrasIds().size());
         assertEquals(50, cseRequest.getDichotomyPrecision());
         assertEquals(650, cseRequest.getInitialDichotomyStep());
+        assertEquals(10, cseRequest.getInitialDichotomyIndex());
+    }
+
+    @Test
+    void testIdccSuccessWithNullUserConfiguration() {
+        TaskDto taskDto = getIdccTaskDto("forcedPras-null.json");
+
+        CseRequest cseRequest = cseAdapterListener.getIdccRequest(taskDto);
+        assertEquals(0, cseRequest.getForcedPrasIds().size());
         assertNull(cseRequest.getInitialDichotomyIndex());
     }
 
@@ -158,7 +168,7 @@ class CseAdapterListenerTest {
 
     @Test
     void testD2ccSuccess() {
-        TaskDto taskDto = getD2ccTaskDto();
+        TaskDto taskDto = getD2ccTaskDto("forcedPras.json");
 
         CseRequest cseRequest = cseAdapterListener.getD2ccRequest(taskDto);
         assertEquals(ProcessType.D2CC, cseRequest.getProcessType());
@@ -170,9 +180,10 @@ class CseAdapterListenerTest {
         assertEquals("file://ntc.xml", cseRequest.getYearlyNtcUrl());
         assertEquals("file://ntc-red.xml", cseRequest.getNtcReductionsUrl());
         assertEquals("file://target-ch.xml", cseRequest.getTargetChUrl());
+        assertEquals(2, cseRequest.getForcedPrasIds().size());
         assertEquals(50, cseRequest.getDichotomyPrecision());
         assertEquals(650, cseRequest.getInitialDichotomyStep());
-        assertNull(cseRequest.getInitialDichotomyIndex());
+        assertEquals(10, cseRequest.getInitialDichotomyIndex());
     }
 
     @Test
@@ -188,5 +199,14 @@ class CseAdapterListenerTest {
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseAdapterListener.getD2ccRequest(taskDto));
+    }
+
+    @Test
+    void testD2ccSuccessWithNullUserConfiguration() {
+        TaskDto taskDto = getD2ccTaskDto("forcedPras-null.json");
+
+        CseRequest cseRequest = cseAdapterListener.getD2ccRequest(taskDto);
+        assertEquals(0, cseRequest.getForcedPrasIds().size());
+        assertNull(cseRequest.getInitialDichotomyIndex());
     }
 }
