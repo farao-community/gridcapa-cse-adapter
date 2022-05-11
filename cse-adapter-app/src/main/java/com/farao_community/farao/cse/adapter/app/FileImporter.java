@@ -24,7 +24,7 @@ public class FileImporter {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(is.readAllBytes(), UserConfiguration.class);
         } catch (IOException e) {
-            throw new CseInvalidDataException(String.format("Cannot import forced PRAs file: %s, check file format", getFilenameFromUrl(userConfigurationUrl)));
+            throw new CseInvalidDataException(String.format("Cannot import forced PRAs file: %s, check file format", getFilenameFromUrl(userConfigurationUrl)), e);
         }
     }
 

@@ -9,7 +9,6 @@ package com.farao_community.farao.cse.adapter.app;
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.starter.CseClient;
-import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.apache.commons.lang3.NotImplementedException;
@@ -26,7 +25,6 @@ import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -55,23 +53,25 @@ public class CseAdapterListener {
     }
 
     void runRequest(TaskDto taskDto) {
+        CseRequest cseRequest;
         switch (cseAdapterConfiguration.getTargetProcess()) {
             case "IDCC":
                 LOGGER.info("Sending IDCC request for TS: {}", taskDto.getTimestamp());
-                CompletableFuture.runAsync(() -> cseClient.run(getIdccRequest(taskDto), CseResponse.class));
+                cseRequest = getIdccRequest(taskDto);
                 break;
             case "D2CC":
                 LOGGER.info("Sending D2CC request for TS: {}", taskDto.getTimestamp());
-                CompletableFuture.runAsync(() -> cseClient.run(getD2ccRequest(taskDto), CseResponse.class));
+                cseRequest = getD2ccRequest(taskDto);
                 break;
             default:
                 throw new NotImplementedException(String.format("Unknown target process for CSE: %s", cseAdapterConfiguration.getTargetProcess()));
         }
+        CompletableFuture.runAsync(() -> cseClient.run(cseRequest, CseRequest.class, CseResponse.class));
     }
 
     CseRequest getIdccRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(Collectors.toMap(ProcessFileDto::getFileType, ProcessFileDto::getFileUrl));
+            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
 
         UserConfigurationWrapper userConfigurationWrapper = new UserConfigurationWrapper(processFileUrlByType.get("USER-CONFIG"));
 
@@ -97,7 +97,7 @@ public class CseAdapterListener {
 
     CseRequest getD2ccRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(Collectors.toMap(ProcessFileDto::getFileType, ProcessFileDto::getFileUrl));
+            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
 
         uploadTargetChFile(taskDto.getTimestamp());
         UserConfigurationWrapper userConfigurationWrapper = new UserConfigurationWrapper(processFileUrlByType.get("USER-CONFIG"));
