@@ -3,10 +3,12 @@ package com.farao_community.farao.cse.adapter.app;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@TestPropertySource(locations = "classpath:application-import.yml")
 class FileImporterTest {
 
     @Autowired

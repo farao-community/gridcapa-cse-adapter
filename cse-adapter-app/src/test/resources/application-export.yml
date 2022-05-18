@@ -22,10 +22,11 @@ minio-adapter:
   access-key: gridcapa
   secret-key: gridcapa
 
-cse-adapter:
-  target-process: IDCC
-  target-ch-fs-location: /path/to/fs/location
-  target-ch-minio-location: /path/to/minio/location
+url-validation:
   whitelist:
     - file:/
     - http://localhost:9000/
+
+cse-adapter:
+  type: export
+  target-process: D2CC

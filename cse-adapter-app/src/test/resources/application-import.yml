@@ -22,6 +22,11 @@ minio-adapter:
   access-key: gridcapa
   secret-key: gridcapa
 
+url-validation:
+  whitelist:
+    - file:/
+    - http://localhost:9000/
+
 cse-adapter:
   type: import
   target-process: IDCC
