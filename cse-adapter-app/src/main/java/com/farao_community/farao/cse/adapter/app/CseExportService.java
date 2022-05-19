@@ -35,7 +35,7 @@ public class CseExportService implements CseAdapter {
     @Override
     public void runAsync(TaskDto taskDto) {
         CseExportRequest cseExportRequest;
-        switch (configuration.getTargetProcess()) {
+        switch (configuration.getProcessType()) {
             case IDCC:
                 LOGGER.info("Sending export IDCC request for TS: {}", taskDto.getTimestamp());
                 cseExportRequest = getIdccRequest(taskDto);
@@ -45,7 +45,7 @@ public class CseExportService implements CseAdapter {
                 cseExportRequest = getD2ccRequest(taskDto);
                 break;
             default:
-                throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getTargetProcess()));
+                throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getProcessType()));
         }
         CompletableFuture.runAsync(() -> cseClient.run(cseExportRequest, CseExportRequest.class, CseExportResponse.class));
     }

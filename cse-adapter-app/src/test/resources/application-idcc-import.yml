@@ -1,0 +1,5 @@
+cse-adapter:
+  exchange-type: import
+  process-type: IDCC
+  target-ch-fs-location: /path/to/fs/location
+  target-ch-minio-location: /path/to/minio/location

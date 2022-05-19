@@ -11,8 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -27,6 +29,8 @@ import static org.mockito.Mockito.when;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
+@SpringBootTest
+@ActiveProfiles("idcc-import")
 class CseImportServiceTest {
 
     @SpyBean
@@ -79,7 +83,7 @@ class CseImportServiceTest {
 
     @Test
     void testAdapterWithIdccConfig() {
-        when(cseImportAdapterConfiguration.getTargetProcess()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.IDCC);
+        when(cseImportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.IDCC);
         TaskDto idccTaskDto = getIdccTaskDto("forcedPras.json");
         CseRequest idccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.when(cseImportService.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
@@ -89,7 +93,7 @@ class CseImportServiceTest {
 
     @Test
     void testAdapterWithD2ccConfig() {
-        when(cseImportAdapterConfiguration.getTargetProcess()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.D2CC);
+        when(cseImportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.D2CC);
         TaskDto d2ccTaskDto = getD2ccTaskDto("forcedPras.json");
         CseRequest d2ccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.doReturn(d2ccCseRequest).when(cseImportService).getD2ccRequest(d2ccTaskDto);

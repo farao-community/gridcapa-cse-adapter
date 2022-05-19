@@ -8,7 +8,6 @@ package com.farao_community.farao.cse.adapter.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

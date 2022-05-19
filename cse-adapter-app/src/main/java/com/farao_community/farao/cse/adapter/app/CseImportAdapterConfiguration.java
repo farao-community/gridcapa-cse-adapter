@@ -8,18 +8,17 @@ package com.farao_community.farao.cse.adapter.app;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @Configuration
-@ConditionalOnProperty(prefix = "cse-adapter", value = "type", havingValue = "import")
+@ConditionalOnProperty(prefix = "cse-adapter", value = "exchange-type", havingValue = "import")
 public class CseImportAdapterConfiguration {
 
-    @Value("${cse-adapter.target-process}")
-    private String targetProcess;
+    @Value("${cse-adapter.process-type}")
+    private String processType;
 
     @Value("${cse-adapter.target-ch-fs-location}")
     private String targetChFsPath;
@@ -27,8 +26,8 @@ public class CseImportAdapterConfiguration {
     @Value("${cse-adapter.target-ch-minio-location}")
     private String targetChMinioPath;
 
-    public ProcessType getTargetProcess() {
-        return ProcessType.valueOf(targetProcess);
+    public ProcessType getProcessType() {
+        return ProcessType.valueOf(processType);
     }
 
     public String getTargetChFsPath() {

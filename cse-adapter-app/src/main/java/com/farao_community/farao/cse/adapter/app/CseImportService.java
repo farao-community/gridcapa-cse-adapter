@@ -43,7 +43,7 @@ public class CseImportService implements CseAdapter {
     @Override
     public void runAsync(TaskDto taskDto) {
         CseRequest cseRequest;
-        switch (configuration.getTargetProcess()) {
+        switch (configuration.getProcessType()) {
             case IDCC:
                 LOGGER.info("Sending import IDCC request for TS: {}", taskDto.getTimestamp());
                 cseRequest = getIdccRequest(taskDto);
@@ -53,7 +53,7 @@ public class CseImportService implements CseAdapter {
                 cseRequest = getD2ccRequest(taskDto);
                 break;
             default:
-                throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getTargetProcess()));
+                throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getProcessType()));
         }
         CompletableFuture.runAsync(() -> cseClient.run(cseRequest, CseRequest.class, CseResponse.class));
     }

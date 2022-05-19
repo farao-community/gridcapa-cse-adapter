@@ -24,6 +24,7 @@ public class CseAdapterListener {
 
     private final CseAdapter cseAdapter;
 
+    @SuppressWarnings("all")
     public CseAdapterListener(CseAdapter cseAdapter) {
         this.cseAdapter = cseAdapter;
     }
