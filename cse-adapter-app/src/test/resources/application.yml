@@ -28,7 +28,7 @@ url-validation:
     - http://localhost:9000/
 
 cse-adapter:
-  exchange-type: import
   process-type: D2CC
+  exchange-type: import
   target-ch-fs-location: /path/to/fs/location
   target-ch-minio-location: /path/to/minio/location

@@ -1,7 +1,6 @@
 package com.farao_community.farao.cse.adapter.app;
 
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
-import com.farao_community.farao.cse.runner.api.resource.ProcessType;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileStatus;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
@@ -24,27 +23,22 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @SpringBootTest
 @ActiveProfiles("idcc-import")
-class CseImportServiceTest {
+class CseIdccImportServiceTest {
 
     @SpyBean
-    private CseImportService cseImportService;
-
-    @MockBean
-    private CseImportAdapterConfiguration cseImportAdapterConfiguration;
+    private CseIdccImportService cseIdccImportService;
 
     @MockBean
     private MinioAdapter minioAdapter;
 
     @BeforeEach
     void setUp() {
-        Mockito.doAnswer(a -> null).when(cseImportService).uploadTargetChFile(any());
         Mockito.when(minioAdapter.generatePreSignedUrl(any())).thenReturn("file://target-ch.xml");
     }
 
@@ -67,37 +61,12 @@ class CseImportServiceTest {
         return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
     }
 
-    private TaskDto getD2ccTaskDto(String userConfigFile) {
-        UUID id = UUID.randomUUID();
-        OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
-        List<ProcessFileDto> processFiles = new ArrayList<>();
-        processFiles.add(new ProcessFileDto("CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp, "file://cgm.uct"));
-        processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
-        processFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
-        processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
-        processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
-        processFiles.add(new ProcessFileDto("USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
-            timestamp, ClassLoader.getSystemResource(userConfigFile).toString()));
-        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
-    }
-
     @Test
     void testAdapterWithIdccConfig() {
-        when(cseImportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.IDCC);
         TaskDto idccTaskDto = getIdccTaskDto("forcedPras.json");
         CseRequest idccCseRequest = Mockito.mock(CseRequest.class);
-        Mockito.when(cseImportService.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
-        cseImportService.runAsync(idccTaskDto);
-        assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
-    }
-
-    @Test
-    void testAdapterWithD2ccConfig() {
-        when(cseImportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.D2CC);
-        TaskDto d2ccTaskDto = getD2ccTaskDto("forcedPras.json");
-        CseRequest d2ccCseRequest = Mockito.mock(CseRequest.class);
-        Mockito.doReturn(d2ccCseRequest).when(cseImportService).getD2ccRequest(d2ccTaskDto);
-        cseImportService.runAsync(d2ccTaskDto);
+        Mockito.when(cseIdccImportService.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
+        cseIdccImportService.runAsync(idccTaskDto);
         assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
     }
 
@@ -105,7 +74,7 @@ class CseImportServiceTest {
     void testIdccSuccess() {
         TaskDto taskDto = getIdccTaskDto("forcedPras.json");
 
-        CseRequest cseRequest = cseImportService.getIdccRequest(taskDto);
+        CseRequest cseRequest = cseIdccImportService.getIdccRequest(taskDto);
         assertEquals(com.farao_community.farao.cse.runner.api.resource.ProcessType.IDCC, cseRequest.getProcessType());
         assertEquals("2021-12-07T14:30Z", cseRequest.getTargetProcessDateTime().toString());
         assertEquals(taskDto.getId().toString(), cseRequest.getId());
@@ -128,8 +97,7 @@ class CseImportServiceTest {
     @Test
     void testIdccSuccessWithNullUserConfiguration() {
         TaskDto taskDto = getIdccTaskDto("forcedPras-null.json");
-
-        CseRequest cseRequest = cseImportService.getIdccRequest(taskDto);
+        CseRequest cseRequest = cseIdccImportService.getIdccRequest(taskDto);
         assertEquals(0, cseRequest.getForcedPrasIds().size());
         assertNull(cseRequest.getInitialDichotomyIndex());
     }
@@ -150,50 +118,6 @@ class CseImportServiceTest {
         processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
 
-        assertThrows(CseAdapterException.class, () -> cseImportService.getIdccRequest(taskDto));
-    }
-
-    @Test
-    void testD2ccSuccess() {
-        TaskDto taskDto = getD2ccTaskDto("forcedPras.json");
-
-        CseRequest cseRequest = cseImportService.getD2ccRequest(taskDto);
-        assertEquals(ProcessType.D2CC, cseRequest.getProcessType());
-        assertEquals("2021-12-07T14:30Z", cseRequest.getTargetProcessDateTime().toString());
-        assertEquals(taskDto.getId().toString(), cseRequest.getId());
-        assertEquals("file://cgm.uct", cseRequest.getCgmUrl());
-        assertEquals("file://crac.json", cseRequest.getMergedCracUrl());
-        assertEquals("file://glsk.xml", cseRequest.getMergedGlskUrl());
-        assertEquals("file://ntc.xml", cseRequest.getYearlyNtcUrl());
-        assertEquals("file://ntc-red.xml", cseRequest.getNtcReductionsUrl());
-        assertEquals("file://target-ch.xml", cseRequest.getTargetChUrl());
-        assertEquals(2, cseRequest.getForcedPrasIds().size());
-        assertEquals(50, cseRequest.getDichotomyPrecision());
-        assertEquals(650, cseRequest.getInitialDichotomyStep());
-        assertEquals(10, cseRequest.getInitialDichotomyIndex());
-    }
-
-    @Test
-    void testD2ccWithMissingFileUrl() {
-        UUID id = UUID.randomUUID();
-        OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
-        List<ProcessFileDto> processFiles = new ArrayList<>();
-        processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
-        processFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
-        processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
-        processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
-        processFiles.add(new ProcessFileDto("TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp, "file://target-ch.xml"));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
-
-        assertThrows(CseAdapterException.class, () -> cseImportService.getD2ccRequest(taskDto));
-    }
-
-    @Test
-    void testD2ccSuccessWithNullUserConfiguration() {
-        TaskDto taskDto = getD2ccTaskDto("forcedPras-null.json");
-
-        CseRequest cseRequest = cseImportService.getD2ccRequest(taskDto);
-        assertEquals(0, cseRequest.getForcedPrasIds().size());
-        assertNull(cseRequest.getInitialDichotomyIndex());
+        assertThrows(CseAdapterException.class, () -> cseIdccImportService.getIdccRequest(taskDto));
     }
 }

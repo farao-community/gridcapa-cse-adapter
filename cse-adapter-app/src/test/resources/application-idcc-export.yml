@@ -1,4 +1,4 @@
 cse-adapter:
   process-type: IDCC
-  exchange-type: import
+  exchange-type: export
 
