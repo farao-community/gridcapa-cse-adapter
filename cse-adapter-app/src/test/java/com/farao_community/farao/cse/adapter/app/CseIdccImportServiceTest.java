@@ -5,13 +5,10 @@ import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileStatus;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
-import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -22,7 +19,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -33,14 +29,6 @@ class CseIdccImportServiceTest {
 
     @SpyBean
     private CseIdccImportService cseIdccImportService;
-
-    @MockBean
-    private MinioAdapter minioAdapter;
-
-    @BeforeEach
-    void setUp() {
-        Mockito.when(minioAdapter.generatePreSignedUrl(any())).thenReturn("file://target-ch.xml");
-    }
 
     private TaskDto getIdccTaskDto(String userConfigFile) {
         UUID id = UUID.randomUUID();

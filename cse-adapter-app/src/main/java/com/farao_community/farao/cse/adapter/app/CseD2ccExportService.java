@@ -37,10 +37,6 @@ public class CseD2ccExportService implements CseAdapter {
     }
 
     CseExportRequest getD2ccRequest(TaskDto taskDto) {
-        return gettRequest(taskDto);
-    }
-
-    private CseExportRequest gettRequest(TaskDto taskDto) {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
             .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
         return new CseExportRequest(
