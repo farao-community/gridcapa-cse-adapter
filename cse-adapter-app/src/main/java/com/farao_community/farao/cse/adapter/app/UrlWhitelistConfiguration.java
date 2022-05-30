@@ -9,7 +9,7 @@ import java.util.List;
 
 @Configuration
 @EnableConfigurationProperties
-@ConfigurationProperties("cse-adapter")
+@ConfigurationProperties("url-validation")
 public class UrlWhitelistConfiguration {
     private final List<String> whitelist = new ArrayList<>();
 
