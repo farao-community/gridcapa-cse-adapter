@@ -11,7 +11,5 @@
 
 	<logger name="com.powsybl" level="OFF"/>
 	<logger name="com.rte_france.powsybl" level="OFF"/>
-	<logger name="org.springframework.core" level="DEBUG"/>
-	<logger name="org.springframework.beans" level="DEBUG"/>
 
 </configuration>
