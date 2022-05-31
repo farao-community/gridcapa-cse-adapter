@@ -13,7 +13,6 @@ import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileStatus;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
 import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingSupplier;
@@ -21,6 +20,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -36,20 +36,21 @@ import static org.mockito.Mockito.when;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @SpringBootTest
-class CseAdapterListenerTest {
+@ActiveProfiles("idcc-import")
+class CseImportServiceTest {
 
     @SpyBean
-    private CseAdapterListener cseAdapterListener;
+    private CseImportService cseImportService;
 
     @MockBean
-    private CseAdapterConfiguration cseAdapterConfiguration;
+    private CseImportAdapterConfiguration cseImportAdapterConfiguration;
 
     @MockBean
     private MinioAdapter minioAdapter;
 
     @BeforeEach
     void setUp() {
-        Mockito.doAnswer(a -> null).when(cseAdapterListener).uploadTargetChFile(any());
+        Mockito.doAnswer(a -> null).when(cseImportService).uploadTargetChFile(any());
         Mockito.when(minioAdapter.generatePreSignedUrl(any())).thenReturn("file://target-ch.xml");
     }
 
@@ -88,38 +89,30 @@ class CseAdapterListenerTest {
 
     @Test
     void testAdapterWithIdccConfig() {
-        when(cseAdapterConfiguration.getTargetProcess()).thenReturn("IDCC");
+        when(cseImportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.IDCC);
         TaskDto idccTaskDto = getIdccTaskDto("forcedPras.json");
         CseRequest idccCseRequest = Mockito.mock(CseRequest.class);
-        Mockito.when(cseAdapterListener.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
-        cseAdapterListener.runRequest(idccTaskDto);
+        Mockito.when(cseImportService.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
+        cseImportService.runAsync(idccTaskDto);
         assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
     }
 
     @Test
     void testAdapterWithD2ccConfig() {
-        when(cseAdapterConfiguration.getTargetProcess()).thenReturn("D2CC");
+        when(cseImportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.D2CC);
         TaskDto d2ccTaskDto = getD2ccTaskDto("forcedPras.json");
         CseRequest d2ccCseRequest = Mockito.mock(CseRequest.class);
-        Mockito.doReturn(d2ccCseRequest).when(cseAdapterListener).getD2ccRequest(d2ccTaskDto);
-        cseAdapterListener.runRequest(d2ccTaskDto);
+        Mockito.doReturn(d2ccCseRequest).when(cseImportService).getD2ccRequest(d2ccTaskDto);
+        cseImportService.runAsync(d2ccTaskDto);
         assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
-    }
-
-    @Test
-    void testAdapterWithInvalidConfig() {
-        when(cseAdapterConfiguration.getTargetProcess()).thenReturn("INVALID");
-        TaskDto d2ccTaskDto = getD2ccTaskDto("forcedPras.json");
-
-        assertThrows(NotImplementedException.class, () -> cseAdapterListener.runRequest(d2ccTaskDto));
     }
 
     @Test
     void testIdccSuccess() {
         TaskDto taskDto = getIdccTaskDto("forcedPras.json");
 
-        CseRequest cseRequest = cseAdapterListener.getIdccRequest(taskDto);
-        assertEquals(ProcessType.IDCC, cseRequest.getProcessType());
+        CseRequest cseRequest = cseImportService.getIdccRequest(taskDto);
+        assertEquals(com.farao_community.farao.cse.runner.api.resource.ProcessType.IDCC, cseRequest.getProcessType());
         assertEquals("2021-12-07T14:30Z", cseRequest.getTargetProcessDateTime().toString());
         assertEquals(taskDto.getId().toString(), cseRequest.getId());
         assertEquals("file://cgm.uct", cseRequest.getCgmUrl());
@@ -142,7 +135,7 @@ class CseAdapterListenerTest {
     void testIdccSuccessWithNullUserConfiguration() {
         TaskDto taskDto = getIdccTaskDto("forcedPras-null.json");
 
-        CseRequest cseRequest = cseAdapterListener.getIdccRequest(taskDto);
+        CseRequest cseRequest = cseImportService.getIdccRequest(taskDto);
         assertEquals(0, cseRequest.getForcedPrasIds().size());
         assertNull(cseRequest.getInitialDichotomyIndex());
     }
@@ -163,14 +156,14 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
 
-        assertThrows(CseAdapterException.class, () -> cseAdapterListener.getIdccRequest(taskDto));
+        assertThrows(CseAdapterException.class, () -> cseImportService.getIdccRequest(taskDto));
     }
 
     @Test
     void testD2ccSuccess() {
         TaskDto taskDto = getD2ccTaskDto("forcedPras.json");
 
-        CseRequest cseRequest = cseAdapterListener.getD2ccRequest(taskDto);
+        CseRequest cseRequest = cseImportService.getD2ccRequest(taskDto);
         assertEquals(ProcessType.D2CC, cseRequest.getProcessType());
         assertEquals("2021-12-07T14:30Z", cseRequest.getTargetProcessDateTime().toString());
         assertEquals(taskDto.getId().toString(), cseRequest.getId());
@@ -198,14 +191,14 @@ class CseAdapterListenerTest {
         processFiles.add(new ProcessFileDto("TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp, "file://target-ch.xml"));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
 
-        assertThrows(CseAdapterException.class, () -> cseAdapterListener.getD2ccRequest(taskDto));
+        assertThrows(CseAdapterException.class, () -> cseImportService.getD2ccRequest(taskDto));
     }
 
     @Test
     void testD2ccSuccessWithNullUserConfiguration() {
         TaskDto taskDto = getD2ccTaskDto("forcedPras-null.json");
 
-        CseRequest cseRequest = cseAdapterListener.getD2ccRequest(taskDto);
+        CseRequest cseRequest = cseImportService.getD2ccRequest(taskDto);
         assertEquals(0, cseRequest.getForcedPrasIds().size());
         assertNull(cseRequest.getInitialDichotomyIndex());
     }
