@@ -10,7 +10,6 @@ import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
-import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +32,11 @@ public class CseImportService implements CseAdapter {
     private final CseImportAdapterConfiguration configuration;
     private final CseClient cseClient;
     private final FileImporter fileImporter;
-    private final MinioAdapter minioAdapter;
 
-    public CseImportService(CseImportAdapterConfiguration configuration, CseClient cseClient, FileImporter fileImporter, MinioAdapter minioAdapter) {
+    public CseImportService(CseImportAdapterConfiguration configuration, CseClient cseClient, FileImporter fileImporter) {
         this.configuration = configuration;
         this.cseClient = cseClient;
         this.fileImporter = fileImporter;
-        this.minioAdapter = minioAdapter;
     }
 
     @Override
