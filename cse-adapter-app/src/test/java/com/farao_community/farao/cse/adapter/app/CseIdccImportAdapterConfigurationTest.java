@@ -27,7 +27,5 @@ class CseIdccImportAdapterConfigurationTest {
     @Test
     void testConfigLoading() {
         assertEquals(IDCC, configuration.getProcessType());
-        assertEquals("/path/to/fs/location", configuration.getTargetChFsPath());
-        assertEquals("/path/to/minio/location", configuration.getTargetChMinioPath());
     }
 }

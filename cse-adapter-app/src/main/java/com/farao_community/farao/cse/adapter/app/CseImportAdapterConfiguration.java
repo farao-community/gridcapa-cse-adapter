@@ -20,21 +20,8 @@ public class CseImportAdapterConfiguration {
     @Value("${cse-adapter.process-type}")
     private String processType;
 
-    @Value("${cse-adapter.target-ch-fs-location}")
-    private String targetChFsPath;
-
-    @Value("${cse-adapter.target-ch-minio-location}")
-    private String targetChMinioPath;
-
     public ProcessType getProcessType() {
         return ProcessType.valueOf(processType);
     }
 
-    public String getTargetChFsPath() {
-        return targetChFsPath;
-    }
-
-    public String getTargetChMinioPath() {
-        return targetChMinioPath;
-    }
 }

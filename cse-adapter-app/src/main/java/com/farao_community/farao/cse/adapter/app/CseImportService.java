@@ -17,10 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -94,7 +90,6 @@ public class CseImportService implements CseAdapter {
         Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
             .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
 
-        uploadTargetChFile(taskDto.getTimestamp());
         UserConfigurationLoader userConfigurationWrapper = new UserConfigurationLoader(fileImporter, processFileUrlByType.get("USER-CONFIG"));
 
         return CseRequest.d2ccProcess(
@@ -104,7 +99,7 @@ public class CseImportService implements CseAdapter {
             Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
             Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
             Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
-            minioAdapter.generatePreSignedUrl(configuration.getTargetChMinioPath()),
+            Optional.ofNullable(processFileUrlByType.get("TARGET-CH")).orElseThrow(() -> new CseAdapterException("TARGET-CH type not found")),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
             userConfigurationWrapper.forcedPrasIds,
             50,
@@ -113,16 +108,4 @@ public class CseImportService implements CseAdapter {
         );
     }
 
-    void uploadTargetChFile(OffsetDateTime timestamp) {
-        try (InputStream is = new FileInputStream(configuration.getTargetChFsPath())) {
-            minioAdapter.uploadArtifactForTimestamp(
-                configuration.getTargetChMinioPath(),
-                is,
-                "CSE_D2CC",
-                "TARGET_CH",
-                timestamp);
-        } catch (IOException e) {
-            throw new CseAdapterException("Impossible to find Target CH file");
-        }
-    }
 }
