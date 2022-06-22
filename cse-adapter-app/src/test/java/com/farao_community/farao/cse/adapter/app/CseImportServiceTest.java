@@ -12,8 +12,6 @@ import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileStatus;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
-import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.mockito.Mockito;
@@ -29,7 +27,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,15 +41,6 @@ class CseImportServiceTest {
 
     @MockBean
     private CseImportAdapterConfiguration cseImportAdapterConfiguration;
-
-    @MockBean
-    private MinioAdapter minioAdapter;
-
-    @BeforeEach
-    void setUp() {
-        Mockito.doAnswer(a -> null).when(cseImportService).uploadTargetChFile(any());
-        Mockito.when(minioAdapter.generatePreSignedUrl(any())).thenReturn("file://target-ch.xml");
-    }
 
     private TaskDto getIdccTaskDto(String userConfigFile) {
         UUID id = UUID.randomUUID();
@@ -81,6 +69,7 @@ class CseImportServiceTest {
         processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
         processFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
         processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
+        processFiles.add(new ProcessFileDto("TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp, "file://target-ch.xml"));
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
         processFiles.add(new ProcessFileDto("USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
             timestamp, ClassLoader.getSystemResource(userConfigFile).toString()));
