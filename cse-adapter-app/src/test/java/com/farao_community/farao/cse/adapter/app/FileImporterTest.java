@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.cse.adapter.app;
 
+import com.farao_community.farao.cse.adapter.app.model.UserConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

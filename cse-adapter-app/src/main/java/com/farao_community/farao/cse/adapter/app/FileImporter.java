@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.cse.adapter.app;
 
+import com.farao_community.farao.cse.adapter.app.model.AutomatedForcedPras;
+import com.farao_community.farao.cse.adapter.app.model.UserConfiguration;
 import com.farao_community.farao.cse.runner.api.exception.CseInvalidDataException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
@@ -31,6 +33,15 @@ public class FileImporter {
             return objectMapper.readValue(is.readAllBytes(), UserConfiguration.class);
         } catch (IOException e) {
             throw new CseInvalidDataException(String.format("Cannot import forced PRAs file: %s, check file format", getFilenameFromUrl(userConfigurationUrl)), e);
+        }
+    }
+
+    public AutomatedForcedPras importAutomatedForcedPras(String automatedForcedPrasUrl) {
+        try (InputStream is = urlValidationService.openUrlStream(automatedForcedPrasUrl)) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(is.readAllBytes(), AutomatedForcedPras.class);
+        } catch (IOException e) {
+            throw new CseInvalidDataException(String.format("Cannot import forced PRAs file: %s, check file format", getFilenameFromUrl(automatedForcedPrasUrl)), e);
         }
     }
 
