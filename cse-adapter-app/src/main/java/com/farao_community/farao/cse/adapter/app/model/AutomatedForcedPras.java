@@ -11,14 +11,14 @@ import java.util.Set;
  */
 public class AutomatedForcedPras {
 
-    private final Map<String, Set<String>> automatedForcedPrasIds;
+    private final Map<String, Set<Set<String>>> automatedForcedPrasIds;
 
     @JsonCreator
-    public AutomatedForcedPras(@JsonProperty Map<String, Set<String>> automatedForcedPrasIds) {
+    public AutomatedForcedPras(@JsonProperty Map<String, Set<Set<String>>> automatedForcedPrasIds) {
         this.automatedForcedPrasIds = automatedForcedPrasIds;
     }
 
-    public Map<String, Set<String>> getAutomatedForcedPrasIds() {
+    public Map<String, Set<Set<String>>> getAutomatedForcedPrasIds() {
         return automatedForcedPrasIds;
     }
 }

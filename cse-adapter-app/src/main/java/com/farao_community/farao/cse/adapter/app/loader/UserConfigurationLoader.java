@@ -17,12 +17,12 @@ import java.util.Optional;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public final class UserConfigurationLoader {
-    public final List<String> forcedPrasIds;
+    public final List<String> manualForcedPrasIds;
     public final Double initialDichotomyIndex;
 
     public UserConfigurationLoader(FileImporter fileImporter, String url) {
         Optional<UserConfiguration> userConfigOpt = Optional.ofNullable(url).map(fileImporter::importUserConfiguration);
-        forcedPrasIds = userConfigOpt.map(UserConfiguration::getForcedPrasIds).orElse(Collections.emptyList());
+        manualForcedPrasIds = userConfigOpt.map(UserConfiguration::getManualForcedPrasIds).orElse(Collections.emptyList());
         initialDichotomyIndex = userConfigOpt.map(UserConfiguration::getInitialDichotomyIndex).orElse(null);
     }
 }

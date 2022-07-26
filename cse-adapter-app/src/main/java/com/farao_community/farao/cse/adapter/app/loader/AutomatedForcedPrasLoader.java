@@ -9,7 +9,7 @@ import java.util.*;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 public class AutomatedForcedPrasLoader {
-    public final Map<String, Set<String>> automatedForcedPrasIds;
+    public final Map<String, Set<Set<String>>> automatedForcedPrasIds;
 
     public AutomatedForcedPrasLoader(FileImporter fileImporter, String url) {
         automatedForcedPrasIds = Optional.ofNullable(url)

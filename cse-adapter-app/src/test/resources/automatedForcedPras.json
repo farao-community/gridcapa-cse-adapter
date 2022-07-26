@@ -1,13 +1,21 @@
 {
   "380kV Sils-Soazza": [
-    "PRA_2N_Silz",
-    "PRA_1N_Silz"
+    [
+      "PRA_2N_Silz"
+    ],
+    [
+      "PRA_1N_Silz"
+    ]
   ],
   "380kV Divaca-Redipuglia": [
-    "PRA_2N_Magenta",
-    "PRA_1N_Magenta"
+    [
+      "PRA_2N_Magenta",
+      "PRA_1N_Magenta"
+    ]
   ],
   "default": [
-    "PRA_1N_Magenta"
+    [
+      "PRA_2N_Magenta"
+    ]
   ]
 }
