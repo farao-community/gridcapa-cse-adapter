@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.cse.adapter.app;
 
+import com.farao_community.farao.cse.adapter.app.loader.AutomatedForcedPrasLoader;
+import com.farao_community.farao.cse.adapter.app.loader.UserConfigurationLoader;
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.starter.CseClient;
@@ -58,10 +60,9 @@ public class CseImportService implements CseAdapter {
     }
 
     CseRequest getIdccRequest(TaskDto taskDto) {
-        Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
-
+        Map<String, String> processFileUrlByType = getUrls(taskDto);
         UserConfigurationLoader userConfigurationLoader = new UserConfigurationLoader(fileImporter, processFileUrlByType.get("USER-CONFIG"));
+        AutomatedForcedPrasLoader automatedForcedPrasLoader = new AutomatedForcedPrasLoader(fileImporter, processFileUrlByType.get("AUTOMATED-FORCED-PRAS"));
 
         return CseRequest.idccProcess(
             taskDto.getId().toString(),
@@ -76,7 +77,8 @@ public class CseImportService implements CseAdapter {
             Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
             Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            userConfigurationLoader.forcedPrasIds,
+            userConfigurationLoader.manualForcedPrasIds,
+            automatedForcedPrasLoader.automatedForcedPrasIds,
             50,
             650,
             userConfigurationLoader.initialDichotomyIndex
@@ -84,10 +86,9 @@ public class CseImportService implements CseAdapter {
     }
 
     CseRequest getD2ccRequest(TaskDto taskDto) {
-        Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
-            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
-
+        Map<String, String> processFileUrlByType = getUrls(taskDto);
         UserConfigurationLoader userConfigurationWrapper = new UserConfigurationLoader(fileImporter, processFileUrlByType.get("USER-CONFIG"));
+        AutomatedForcedPrasLoader automatedForcedPrasLoader = new AutomatedForcedPrasLoader(fileImporter, processFileUrlByType.get("AUTOMATED-FORCED-PRAS"));
 
         return CseRequest.d2ccProcess(
             taskDto.getId().toString(),
@@ -98,11 +99,16 @@ public class CseImportService implements CseAdapter {
             Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
             Optional.ofNullable(processFileUrlByType.get("TARGET-CH")).orElseThrow(() -> new CseAdapterException("TARGET-CH type not found")),
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            userConfigurationWrapper.forcedPrasIds,
+            userConfigurationWrapper.manualForcedPrasIds,
+            automatedForcedPrasLoader.automatedForcedPrasIds,
             50,
             650,
             userConfigurationWrapper.initialDichotomyIndex
         );
     }
 
+    private Map<String, String> getUrls(TaskDto taskDto) {
+        return taskDto.getProcessFiles().stream()
+            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
+    }
 }

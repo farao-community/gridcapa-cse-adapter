@@ -6,6 +6,8 @@
  */
 package com.farao_community.farao.cse.adapter.app;
 
+import com.farao_community.farao.cse.adapter.app.model.AutomatedForcedPras;
+import com.farao_community.farao.cse.adapter.app.model.UserConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,13 +24,25 @@ class FileImporterTest {
     void testUserConfigurationImport() {
         UserConfiguration userConfiguration = fileImporter.importUserConfiguration(ClassLoader.getSystemResource("forcedPras.json").toString());
         assertEquals(10., userConfiguration.getInitialDichotomyIndex(), 0.);
-        assertEquals(2, userConfiguration.getForcedPrasIds().size());
+        assertEquals(2, userConfiguration.getManualForcedPrasIds().size());
     }
 
     @Test
     void testUserConfigurationWithEmptyListOfForcedPrasImport() {
         UserConfiguration userConfiguration = fileImporter.importUserConfiguration(ClassLoader.getSystemResource("forcedPras-empty.json").toString());
         assertEquals(10., userConfiguration.getInitialDichotomyIndex(), 0.);
-        assertEquals(0, userConfiguration.getForcedPrasIds().size());
+        assertEquals(0, userConfiguration.getManualForcedPrasIds().size());
+    }
+
+    @Test
+    void testAutomatedForcedPrasImport() {
+        AutomatedForcedPras automatedForcedPras = fileImporter.importAutomatedForcedPras(ClassLoader.getSystemResource("automatedForcedPras.json").toString());
+        assertEquals(3, automatedForcedPras.getAutomatedForcedPrasIds().size());
+        assertEquals(2, automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Sils-Soazza").size());
+        assertEquals(1, automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Divaca-Redipuglia").size());
+        assertEquals(2, automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Divaca-Redipuglia").iterator().next().size());
+        assertEquals("PRA_2N_Magenta", automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Divaca-Redipuglia").iterator().next().iterator().next());
+        assertEquals("PRA_2N_Magenta", automatedForcedPras.getAutomatedForcedPrasIds().get("default").iterator().next().iterator().next());
+
     }
 }

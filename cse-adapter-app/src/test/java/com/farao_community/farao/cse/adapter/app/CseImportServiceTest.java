@@ -114,7 +114,7 @@ class CseImportServiceTest {
         assertEquals("file://ch-ntc2.xml", cseRequest.getNtc2ChItUrl());
         assertEquals("file://fr-ntc2.xml", cseRequest.getNtc2FrItUrl());
         assertEquals("file://si-ntc2.xml", cseRequest.getNtc2SiItUrl());
-        assertEquals(2, cseRequest.getForcedPrasIds().size());
+        assertEquals(2, cseRequest.getManualForcedPrasIds().size());
         assertEquals(50, cseRequest.getDichotomyPrecision());
         assertEquals(650, cseRequest.getInitialDichotomyStep());
         assertEquals(10, cseRequest.getInitialDichotomyIndex());
@@ -125,7 +125,7 @@ class CseImportServiceTest {
         TaskDto taskDto = getIdccTaskDto("forcedPras-null.json");
 
         CseRequest cseRequest = cseImportService.getIdccRequest(taskDto);
-        assertEquals(0, cseRequest.getForcedPrasIds().size());
+        assertEquals(0, cseRequest.getManualForcedPrasIds().size());
         assertNull(cseRequest.getInitialDichotomyIndex());
     }
 
@@ -162,7 +162,7 @@ class CseImportServiceTest {
         assertEquals("file://ntc.xml", cseRequest.getYearlyNtcUrl());
         assertEquals("file://ntc-red.xml", cseRequest.getNtcReductionsUrl());
         assertEquals("file://target-ch.xml", cseRequest.getTargetChUrl());
-        assertEquals(2, cseRequest.getForcedPrasIds().size());
+        assertEquals(2, cseRequest.getManualForcedPrasIds().size());
         assertEquals(50, cseRequest.getDichotomyPrecision());
         assertEquals(650, cseRequest.getInitialDichotomyStep());
         assertEquals(10, cseRequest.getInitialDichotomyIndex());
@@ -188,7 +188,7 @@ class CseImportServiceTest {
         TaskDto taskDto = getD2ccTaskDto("forcedPras-null.json");
 
         CseRequest cseRequest = cseImportService.getD2ccRequest(taskDto);
-        assertEquals(0, cseRequest.getForcedPrasIds().size());
+        assertEquals(0, cseRequest.getManualForcedPrasIds().size());
         assertNull(cseRequest.getInitialDichotomyIndex());
     }
 }
