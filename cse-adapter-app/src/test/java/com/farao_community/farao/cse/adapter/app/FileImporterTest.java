@@ -6,6 +6,7 @@
  */
 package com.farao_community.farao.cse.adapter.app;
 
+import com.farao_community.farao.cse.adapter.app.model.AutomatedForcedPras;
 import com.farao_community.farao.cse.adapter.app.model.UserConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +32,13 @@ class FileImporterTest {
         UserConfiguration userConfiguration = fileImporter.importUserConfiguration(ClassLoader.getSystemResource("forcedPras-empty.json").toString());
         assertEquals(10., userConfiguration.getInitialDichotomyIndex(), 0.);
         assertEquals(0, userConfiguration.getForcedPrasIds().size());
+    }
+
+    @Test
+    void testAutomatedForcedPrasImport() {
+        AutomatedForcedPras automatedForcedPras = fileImporter.importAutomatedForcedPras(ClassLoader.getSystemResource("automatedForcedPras.json").toString());
+        assertEquals(2, automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Sils-Soazza").size());
+        assertEquals("PRA_1N_Magenta", automatedForcedPras.getAutomatedForcedPrasIds().get("default").iterator().next());
+
     }
 }
