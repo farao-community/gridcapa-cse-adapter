@@ -40,9 +40,9 @@ class FileImporterTest {
         assertEquals(3, automatedForcedPras.getAutomatedForcedPrasIds().size());
         assertEquals(2, automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Sils-Soazza").size());
         assertEquals(1, automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Divaca-Redipuglia").size());
-        assertEquals(2, automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Divaca-Redipuglia").iterator().next().size());
-        assertEquals("PRA_2N_Magenta", automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Divaca-Redipuglia").iterator().next().iterator().next());
-        assertEquals("PRA_2N_Magenta", automatedForcedPras.getAutomatedForcedPrasIds().get("default").iterator().next().iterator().next());
+        assertEquals(2, automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Divaca-Redipuglia").get(0).size());
+        assertEquals("PRA_2N_Magenta", automatedForcedPras.getAutomatedForcedPrasIds().get("380kV Divaca-Redipuglia").get(0).iterator().next());
+        assertEquals("PRA_2N_Magenta", automatedForcedPras.getAutomatedForcedPrasIds().get("default").get(0).iterator().next());
 
     }
 }

@@ -3,6 +3,7 @@ package com.farao_community.farao.cse.adapter.app.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,14 +12,14 @@ import java.util.Set;
  */
 public class AutomatedForcedPras {
 
-    private final Map<String, Set<Set<String>>> automatedForcedPrasIds;
+    private final Map<String, List<Set<String>>> automatedForcedPrasIds;
 
     @JsonCreator
-    public AutomatedForcedPras(@JsonProperty Map<String, Set<Set<String>>> automatedForcedPrasIds) {
+    public AutomatedForcedPras(@JsonProperty Map<String, List<Set<String>>> automatedForcedPrasIds) {
         this.automatedForcedPrasIds = automatedForcedPrasIds;
     }
 
-    public Map<String, Set<Set<String>>> getAutomatedForcedPrasIds() {
+    public Map<String, List<Set<String>>> getAutomatedForcedPrasIds() {
         return automatedForcedPrasIds;
     }
 }
