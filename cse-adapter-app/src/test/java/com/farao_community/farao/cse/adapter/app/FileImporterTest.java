@@ -22,14 +22,15 @@ class FileImporterTest {
 
     @Test
     void testUserConfigurationImport() {
-        UserConfiguration userConfiguration = fileImporter.importUserConfiguration(ClassLoader.getSystemResource("forcedPras.json").toString());
+        UserConfiguration userConfiguration = fileImporter.importUserConfiguration(ClassLoader.getSystemResource("userConfigs.json").toString());
         assertEquals(10., userConfiguration.getInitialDichotomyIndex(), 0.);
         assertEquals(2, userConfiguration.getManualForcedPrasIds().size());
+        assertEquals(5, userConfiguration.getMaximumDichotomiesNumber());
     }
 
     @Test
     void testUserConfigurationWithEmptyListOfForcedPrasImport() {
-        UserConfiguration userConfiguration = fileImporter.importUserConfiguration(ClassLoader.getSystemResource("forcedPras-empty.json").toString());
+        UserConfiguration userConfiguration = fileImporter.importUserConfiguration(ClassLoader.getSystemResource("userConfigs-empty.json").toString());
         assertEquals(10., userConfiguration.getInitialDichotomyIndex(), 0.);
         assertEquals(0, userConfiguration.getManualForcedPrasIds().size());
     }

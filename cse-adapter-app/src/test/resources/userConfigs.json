@@ -1,0 +1,5 @@
+{
+  "initialDichotomyIndex": 10,
+  "manualForcedPrasIds":  ["pra1", "pra2"],
+  "maximumDichotomiesNumber": 5
+}
