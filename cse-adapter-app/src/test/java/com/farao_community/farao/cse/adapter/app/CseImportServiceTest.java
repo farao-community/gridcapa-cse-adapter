@@ -79,7 +79,7 @@ class CseImportServiceTest {
     @Test
     void testAdapterWithIdccConfig() {
         when(cseImportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.IDCC);
-        TaskDto idccTaskDto = getIdccTaskDto("forcedPras.json");
+        TaskDto idccTaskDto = getIdccTaskDto("userConfigs.json");
         CseRequest idccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.when(cseImportService.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
         cseImportService.runAsync(idccTaskDto);
@@ -89,7 +89,7 @@ class CseImportServiceTest {
     @Test
     void testAdapterWithD2ccConfig() {
         when(cseImportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.D2CC);
-        TaskDto d2ccTaskDto = getD2ccTaskDto("forcedPras.json");
+        TaskDto d2ccTaskDto = getD2ccTaskDto("userConfigs.json");
         CseRequest d2ccCseRequest = Mockito.mock(CseRequest.class);
         Mockito.doReturn(d2ccCseRequest).when(cseImportService).getD2ccRequest(d2ccTaskDto);
         cseImportService.runAsync(d2ccTaskDto);
@@ -98,7 +98,7 @@ class CseImportServiceTest {
 
     @Test
     void testIdccSuccess() {
-        TaskDto taskDto = getIdccTaskDto("forcedPras.json");
+        TaskDto taskDto = getIdccTaskDto("userConfigs.json");
 
         CseRequest cseRequest = cseImportService.getIdccRequest(taskDto);
         assertEquals(com.farao_community.farao.cse.runner.api.resource.ProcessType.IDCC, cseRequest.getProcessType());
@@ -122,7 +122,7 @@ class CseImportServiceTest {
 
     @Test
     void testIdccSuccessWithNullUserConfiguration() {
-        TaskDto taskDto = getIdccTaskDto("forcedPras-null.json");
+        TaskDto taskDto = getIdccTaskDto("userConfigs-null.json");
 
         CseRequest cseRequest = cseImportService.getIdccRequest(taskDto);
         assertEquals(0, cseRequest.getManualForcedPrasIds().size());
@@ -150,7 +150,7 @@ class CseImportServiceTest {
 
     @Test
     void testD2ccSuccess() {
-        TaskDto taskDto = getD2ccTaskDto("forcedPras.json");
+        TaskDto taskDto = getD2ccTaskDto("userConfigs.json");
 
         CseRequest cseRequest = cseImportService.getD2ccRequest(taskDto);
         assertEquals(ProcessType.D2CC, cseRequest.getProcessType());
@@ -185,7 +185,7 @@ class CseImportServiceTest {
 
     @Test
     void testD2ccSuccessWithNullUserConfiguration() {
-        TaskDto taskDto = getD2ccTaskDto("forcedPras-null.json");
+        TaskDto taskDto = getD2ccTaskDto("userConfigs-null.json");
 
         CseRequest cseRequest = cseImportService.getD2ccRequest(taskDto);
         assertEquals(0, cseRequest.getManualForcedPrasIds().size());

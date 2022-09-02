@@ -82,7 +82,7 @@ class CseExportServiceTest {
     @Test
     void testAdapterWithD2ccConfig() {
         when(cseExportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.D2CC);
-        TaskDto d2ccTaskDto = getD2ccTaskDto("forcedPras.json");
+        TaskDto d2ccTaskDto = getD2ccTaskDto("userConfigs.json");
         CseExportRequest d2ccCseRequest = Mockito.mock(CseExportRequest.class);
         Mockito.doReturn(d2ccCseRequest).when(cseExportService).getD2ccRequest(d2ccTaskDto);
         cseExportService.runAsync(d2ccTaskDto);
@@ -114,7 +114,7 @@ class CseExportServiceTest {
 
     @Test
     void testD2ccSuccess() {
-        TaskDto taskDto = getD2ccTaskDto("forcedPras.json");
+        TaskDto taskDto = getD2ccTaskDto("userConfigs.json");
 
         CseExportRequest cseRequest = cseExportService.getD2ccRequest(taskDto);
         assertEquals(ProcessType.D2CC, cseRequest.getProcessType());

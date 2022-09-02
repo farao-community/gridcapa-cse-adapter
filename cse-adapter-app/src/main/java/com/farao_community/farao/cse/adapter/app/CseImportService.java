@@ -79,6 +79,7 @@ public class CseImportService implements CseAdapter {
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
             userConfigurationLoader.manualForcedPrasIds,
             automatedForcedPrasLoader.automatedForcedPrasIds,
+            userConfigurationLoader.maximumDichotomiesNumber,
             50,
             650,
             userConfigurationLoader.initialDichotomyIndex
@@ -101,6 +102,7 @@ public class CseImportService implements CseAdapter {
             Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
             userConfigurationWrapper.manualForcedPrasIds,
             automatedForcedPrasLoader.automatedForcedPrasIds,
+            userConfigurationWrapper.maximumDichotomiesNumber,
             50,
             650,
             userConfigurationWrapper.initialDichotomyIndex

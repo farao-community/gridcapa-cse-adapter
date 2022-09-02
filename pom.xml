@@ -28,7 +28,7 @@
 
     <properties>
         <task-manager.api.version>0.3.0</task-manager.api.version>
-        <cse.version>1.6.2</cse.version>
+        <cse.version>1.7.0</cse.version>
         <minio-adapter.version>0.2.0</minio-adapter.version>
     </properties>
 

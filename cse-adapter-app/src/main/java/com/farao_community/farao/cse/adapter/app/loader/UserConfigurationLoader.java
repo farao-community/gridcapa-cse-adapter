@@ -19,10 +19,12 @@ import java.util.Optional;
 public final class UserConfigurationLoader {
     public final List<String> manualForcedPrasIds;
     public final Double initialDichotomyIndex;
+    public final Integer maximumDichotomiesNumber;
 
     public UserConfigurationLoader(FileImporter fileImporter, String url) {
         Optional<UserConfiguration> userConfigOpt = Optional.ofNullable(url).map(fileImporter::importUserConfiguration);
         manualForcedPrasIds = userConfigOpt.map(UserConfiguration::getManualForcedPrasIds).orElse(Collections.emptyList());
         initialDichotomyIndex = userConfigOpt.map(UserConfiguration::getInitialDichotomyIndex).orElse(null);
+        maximumDichotomiesNumber = userConfigOpt.map(UserConfiguration::getMaximumDichotomiesNumber).orElse(null);
     }
 }
