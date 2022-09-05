@@ -52,7 +52,7 @@ class CseExportServiceTest {
         List<ProcessFileDto> processFiles = new ArrayList<>();
         processFiles.add(new ProcessFileDto("CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp, "file://cgm.uct"));
         processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
-        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
+        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     private TaskDto getD2ccTaskDto(String userConfigFile) {
@@ -66,7 +66,7 @@ class CseExportServiceTest {
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
         processFiles.add(new ProcessFileDto("USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
             timestamp, ClassLoader.getSystemResource(userConfigFile).toString()));
-        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
+        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     @Test
@@ -107,7 +107,7 @@ class CseExportServiceTest {
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> processFiles = new ArrayList<>();
         processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseExportService.getIdccRequest(taskDto));
     }
@@ -130,7 +130,7 @@ class CseExportServiceTest {
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> processFiles = new ArrayList<>();
         processFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseExportService.getD2ccRequest(taskDto));
     }
