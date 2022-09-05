@@ -58,7 +58,7 @@ class CseImportServiceTest {
         processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
         processFiles.add(new ProcessFileDto("USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
             timestamp, ClassLoader.getSystemResource(userConfigFile).toString()));
-        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
+        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     private TaskDto getD2ccTaskDto(String userConfigFile) {
@@ -73,7 +73,7 @@ class CseImportServiceTest {
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
         processFiles.add(new ProcessFileDto("USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
             timestamp, ClassLoader.getSystemResource(userConfigFile).toString()));
-        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
+        return new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     @Test
@@ -143,7 +143,7 @@ class CseImportServiceTest {
         processFiles.add(new ProcessFileDto("NTC2-CH", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp, "file://ch-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-FR", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp, "file://fr-ntc2.xml"));
         processFiles.add(new ProcessFileDto("NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp, "file://si-ntc2.xml"));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseImportService.getIdccRequest(taskDto));
     }
@@ -178,7 +178,7 @@ class CseImportServiceTest {
         processFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
         processFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
         processFiles.add(new ProcessFileDto("TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp, "file://target-ch.xml"));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList());
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, processFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseImportService.getD2ccRequest(taskDto));
     }
