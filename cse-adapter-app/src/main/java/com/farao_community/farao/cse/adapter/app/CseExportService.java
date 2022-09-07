@@ -41,31 +41,36 @@ public class CseExportService implements CseAdapter {
     @Override
     public void runAsync(TaskDto taskDto) {
         CseExportRequest cseExportRequest;
-        switch (configuration.getProcessType()) {
-            case IDCC:
-                LOGGER.info("Sending export IDCC request for TS: {}", taskDto.getTimestamp());
-                cseExportRequest = getIdccRequest(taskDto);
-                break;
-            case D2CC:
-                LOGGER.info("Sending export D2CC request for TS: {}", taskDto.getTimestamp());
-                cseExportRequest = getD2ccRequest(taskDto);
-                break;
-            default:
-                throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getProcessType()));
+        try {
+            switch (configuration.getProcessType()) {
+                case IDCC:
+                    LOGGER.info("Sending export IDCC request for TS: {}", taskDto.getTimestamp());
+                    cseExportRequest = getIdccRequest(taskDto);
+                    break;
+                case D2CC:
+                    LOGGER.info("Sending export D2CC request for TS: {}", taskDto.getTimestamp());
+                    cseExportRequest = getD2ccRequest(taskDto);
+                    break;
+                default:
+                    throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getProcessType()));
+            }
+        } catch (Exception e) {
+            LOGGER.error(String.format("Unexpected error occurred during building the request, task %s will not be run.", taskDto.getId().toString()), e);
+            return;
         }
         CompletableFuture.runAsync(() -> cseClient.run(cseExportRequest, CseExportRequest.class, CseExportResponse.class));
     }
 
     CseExportRequest getIdccRequest(TaskDto taskDto) {
-        return gettRequest(taskDto, ProcessType.IDCC);
+        return getRequest(taskDto, ProcessType.IDCC);
     }
 
     CseExportRequest getD2ccRequest(TaskDto taskDto) {
-        return gettRequest(taskDto, ProcessType.D2CC);
+        return getRequest(taskDto, ProcessType.D2CC);
     }
 
-    private CseExportRequest gettRequest(TaskDto taskDto, ProcessType processType) {
-        Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
+    private CseExportRequest getRequest(TaskDto taskDto, ProcessType processType) {
+        Map<String, String> processFileUrlByType = taskDto.getInputs().stream()
             .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
 
         return new CseExportRequest(

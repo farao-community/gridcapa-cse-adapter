@@ -44,17 +44,22 @@ public class CseImportService implements CseAdapter {
     @Override
     public void runAsync(TaskDto taskDto) {
         CseRequest cseRequest;
-        switch (configuration.getProcessType()) {
-            case IDCC:
-                LOGGER.info("Sending import IDCC request for TS: {}", taskDto.getTimestamp());
-                cseRequest = getIdccRequest(taskDto);
-                break;
-            case D2CC:
-                LOGGER.info("Sending import D2CC request for TS: {}", taskDto.getTimestamp());
-                cseRequest = getD2ccRequest(taskDto);
-                break;
-            default:
-                throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getProcessType()));
+        try {
+            switch (configuration.getProcessType()) {
+                case IDCC:
+                    LOGGER.info("Sending import IDCC request for TS: {}", taskDto.getTimestamp());
+                    cseRequest = getIdccRequest(taskDto);
+                    break;
+                case D2CC:
+                    LOGGER.info("Sending import D2CC request for TS: {}", taskDto.getTimestamp());
+                    cseRequest = getD2ccRequest(taskDto);
+                    break;
+                default:
+                    throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getProcessType()));
+            }
+        } catch (Exception e) {
+            LOGGER.error(String.format("Unexpected error occurred during building the request, task %s will not be run.", taskDto.getId().toString()), e);
+            return;
         }
         CompletableFuture.runAsync(() -> cseClient.run(cseRequest, CseRequest.class, CseResponse.class));
     }
@@ -110,7 +115,7 @@ public class CseImportService implements CseAdapter {
     }
 
     private Map<String, String> getUrls(TaskDto taskDto) {
-        return taskDto.getProcessFiles().stream()
+        return taskDto.getInputs().stream()
             .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
     }
 }
