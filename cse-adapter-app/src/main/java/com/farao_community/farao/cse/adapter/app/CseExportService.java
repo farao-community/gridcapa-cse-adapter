@@ -11,10 +11,13 @@ import com.farao_community.farao.cse.runner.api.resource.CseExportResponse;
 import com.farao_community.farao.cse.runner.api.resource.ProcessType;
 import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
+import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
+import com.farao_community.farao.gridcapa.task_manager.api.TaskStatusUpdate;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -28,44 +31,55 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @ConditionalOnBean(value = { CseExportAdapterConfiguration.class })
 public class CseExportService implements CseAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CseExportService.class);
+    private static final String TASK_STATUS_UPDATE = "task-status-update";
 
     private final CseExportAdapterConfiguration configuration;
     private final CseClient cseClient;
+    private final StreamBridge streamBridge;
+    private final Logger businessLogger;
 
-    public CseExportService(CseExportAdapterConfiguration configuration, CseClient cseClient) {
+    public CseExportService(CseExportAdapterConfiguration configuration, CseClient cseClient, StreamBridge streamBridge, Logger businessLogger) {
         this.configuration = configuration;
         this.cseClient = cseClient;
+        this.streamBridge = streamBridge;
+        this.businessLogger = businessLogger;
     }
 
     @Override
     public void runAsync(TaskDto taskDto) {
+        MDC.put("gridcapa-task-id", taskDto.getId().toString());
         CseExportRequest cseExportRequest;
-        switch (configuration.getProcessType()) {
-            case IDCC:
-                LOGGER.info("Sending export IDCC request for TS: {}", taskDto.getTimestamp());
-                cseExportRequest = getIdccRequest(taskDto);
-                break;
-            case D2CC:
-                LOGGER.info("Sending export D2CC request for TS: {}", taskDto.getTimestamp());
-                cseExportRequest = getD2ccRequest(taskDto);
-                break;
-            default:
-                throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getProcessType()));
+        try {
+            switch (configuration.getProcessType()) {
+                case IDCC:
+                    businessLogger.info("Sending export IDCC request for TS: {}", taskDto.getTimestamp());
+                    cseExportRequest = getIdccRequest(taskDto);
+                    break;
+                case D2CC:
+                    businessLogger.info("Sending export D2CC request for TS: {}", taskDto.getTimestamp());
+                    cseExportRequest = getD2ccRequest(taskDto);
+                    break;
+                default:
+                    throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getProcessType()));
+            }
+        } catch (Exception e) {
+            businessLogger.error(String.format("Unexpected error occurred during building the request, task %s will not be run. Reason: %s", taskDto.getId().toString(), e.getMessage()));
+            streamBridge.send(TASK_STATUS_UPDATE, new TaskStatusUpdate(taskDto.getId(), TaskStatus.ERROR));
+            return;
         }
         CompletableFuture.runAsync(() -> cseClient.run(cseExportRequest, CseExportRequest.class, CseExportResponse.class));
     }
 
     CseExportRequest getIdccRequest(TaskDto taskDto) {
-        return gettRequest(taskDto, ProcessType.IDCC);
+        return getRequest(taskDto, ProcessType.IDCC);
     }
 
     CseExportRequest getD2ccRequest(TaskDto taskDto) {
-        return gettRequest(taskDto, ProcessType.D2CC);
+        return getRequest(taskDto, ProcessType.D2CC);
     }
 
-    private CseExportRequest gettRequest(TaskDto taskDto, ProcessType processType) {
-        Map<String, String> processFileUrlByType = taskDto.getProcessFiles().stream()
+    private CseExportRequest getRequest(TaskDto taskDto, ProcessType processType) {
+        Map<String, String> processFileUrlByType = taskDto.getInputs().stream()
             .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
 
         return new CseExportRequest(
