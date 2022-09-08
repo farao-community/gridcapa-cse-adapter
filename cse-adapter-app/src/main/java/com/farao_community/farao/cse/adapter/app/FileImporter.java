@@ -32,7 +32,7 @@ public class FileImporter {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(is.readAllBytes(), UserConfiguration.class);
         } catch (IOException e) {
-            throw new CseInvalidDataException(String.format("Cannot import user configuration file: %s, check file format", getFilenameFromUrl(userConfigurationUrl)), e);
+            throw new CseInvalidDataException(String.format("Cannot import user configuration file: %s, check file format: %s", getFilenameFromUrl(userConfigurationUrl), e.getMessage()), e);
         }
     }
 
@@ -41,7 +41,7 @@ public class FileImporter {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(is.readAllBytes(), AutomatedForcedPras.class);
         } catch (IOException e) {
-            throw new CseInvalidDataException(String.format("Cannot import automated forced PRAs file: %s, check file format", getFilenameFromUrl(automatedForcedPrasUrl)), e);
+            throw new CseInvalidDataException(String.format("Cannot import automated forced PRAs file: %s, check file format: %s", getFilenameFromUrl(automatedForcedPrasUrl), e.getMessage()), e);
         }
     }
 

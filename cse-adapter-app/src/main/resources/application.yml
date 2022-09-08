@@ -10,6 +10,8 @@ spring:
         handleRun-in-0:
           binder: rabbit
           destination: cse-idcc-launch-task
+        task-status-update:
+          destination: task-manager-status-update
 
 cse-cc-runner:
   binding:
@@ -30,4 +32,11 @@ url-validation:
 cse-adapter:
   exchange-type: import
   process-type: D2CC
+
+logging:
+  config: /logback-file-location
+
+logback:
+  amqp:
+    exchange: task-manager-logs-exchange
 

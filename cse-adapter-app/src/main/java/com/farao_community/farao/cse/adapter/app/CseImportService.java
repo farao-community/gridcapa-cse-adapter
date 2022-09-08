@@ -12,10 +12,13 @@ import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
+import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
+import com.farao_community.farao.gridcapa.task_manager.api.TaskStatusUpdate;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -29,36 +32,42 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @ConditionalOnBean(value = { CseImportAdapterConfiguration.class })
 public class CseImportService implements CseAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CseImportService.class);
+    private static final String TASK_STATUS_UPDATE = "task-status-update";
 
     private final CseImportAdapterConfiguration configuration;
     private final CseClient cseClient;
     private final FileImporter fileImporter;
+    private final StreamBridge streamBridge;
+    private final Logger businessLogger;
 
-    public CseImportService(CseImportAdapterConfiguration configuration, CseClient cseClient, FileImporter fileImporter) {
+    public CseImportService(CseImportAdapterConfiguration configuration, CseClient cseClient, FileImporter fileImporter, StreamBridge streamBridge, Logger businessLogger) {
         this.configuration = configuration;
         this.cseClient = cseClient;
         this.fileImporter = fileImporter;
+        this.streamBridge = streamBridge;
+        this.businessLogger = businessLogger;
     }
 
     @Override
     public void runAsync(TaskDto taskDto) {
+        MDC.put("gridcapa-task-id", taskDto.getId().toString());
         CseRequest cseRequest;
         try {
             switch (configuration.getProcessType()) {
                 case IDCC:
-                    LOGGER.info("Sending import IDCC request for TS: {}", taskDto.getTimestamp());
+                    businessLogger.info("Sending import IDCC request for TS: {}", taskDto.getTimestamp());
                     cseRequest = getIdccRequest(taskDto);
                     break;
                 case D2CC:
-                    LOGGER.info("Sending import D2CC request for TS: {}", taskDto.getTimestamp());
+                    businessLogger.info("Sending import D2CC request for TS: {}", taskDto.getTimestamp());
                     cseRequest = getD2ccRequest(taskDto);
                     break;
                 default:
                     throw new NotImplementedException(String.format("Unknown target process for CSE: %s", configuration.getProcessType()));
             }
         } catch (Exception e) {
-            LOGGER.error(String.format("Unexpected error occurred during building the request, task %s will not be run.", taskDto.getId().toString()), e);
+            businessLogger.error(String.format("Unexpected error occurred during building the request, task %s will not be run. Reason: %s", taskDto.getId().toString(), e.getMessage()));
+            streamBridge.send(TASK_STATUS_UPDATE, new TaskStatusUpdate(taskDto.getId(), TaskStatus.ERROR));
             return;
         }
         CompletableFuture.runAsync(() -> cseClient.run(cseRequest, CseRequest.class, CseResponse.class));
