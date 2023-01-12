@@ -115,7 +115,7 @@ class CseImportServiceTest {
         assertEquals("file://fr-ntc2.xml", cseRequest.getNtc2FrItUrl());
         assertEquals("file://si-ntc2.xml", cseRequest.getNtc2SiItUrl());
         assertEquals(2, cseRequest.getManualForcedPrasIds().size());
-        assertEquals(50, cseRequest.getDichotomyPrecision());
+        assertEquals(100, cseRequest.getDichotomyPrecision());
         assertEquals(650, cseRequest.getInitialDichotomyStep());
         assertEquals(10, cseRequest.getInitialDichotomyIndex());
     }
@@ -163,7 +163,7 @@ class CseImportServiceTest {
         assertEquals("file://ntc-red.xml", cseRequest.getNtcReductionsUrl());
         assertEquals("file://target-ch.xml", cseRequest.getTargetChUrl());
         assertEquals(2, cseRequest.getManualForcedPrasIds().size());
-        assertEquals(50, cseRequest.getDichotomyPrecision());
+        assertEquals(100, cseRequest.getDichotomyPrecision());
         assertEquals(650, cseRequest.getInitialDichotomyStep());
         assertEquals(10, cseRequest.getInitialDichotomyIndex());
     }

@@ -94,7 +94,7 @@ public class CseImportService implements CseAdapter {
             userConfigurationLoader.manualForcedPrasIds,
             automatedForcedPrasLoader.automatedForcedPrasIds,
             userConfigurationLoader.maximumDichotomiesNumber,
-            50,
+            100,
             650,
             userConfigurationLoader.initialDichotomyIndex
         );
@@ -117,7 +117,7 @@ public class CseImportService implements CseAdapter {
             userConfigurationWrapper.manualForcedPrasIds,
             automatedForcedPrasLoader.automatedForcedPrasIds,
             userConfigurationWrapper.maximumDichotomiesNumber,
-            50,
+            100,
             650,
             userConfigurationWrapper.initialDichotomyIndex
         );
