@@ -13,6 +13,7 @@ import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatusUpdate;
+import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -37,12 +38,14 @@ public class CseExportService implements CseAdapter {
     private final CseClient cseClient;
     private final StreamBridge streamBridge;
     private final Logger businessLogger;
+    private final MinioAdapter minioAdapter;
 
-    public CseExportService(CseExportAdapterConfiguration configuration, CseClient cseClient, StreamBridge streamBridge, Logger businessLogger) {
+    public CseExportService(CseExportAdapterConfiguration configuration, CseClient cseClient, StreamBridge streamBridge, Logger businessLogger, MinioAdapter minioAdapter) {
         this.configuration = configuration;
         this.cseClient = cseClient;
         this.streamBridge = streamBridge;
         this.businessLogger = businessLogger;
+        this.minioAdapter = minioAdapter;
     }
 
     @Override
@@ -80,7 +83,7 @@ public class CseExportService implements CseAdapter {
 
     private CseExportRequest getRequest(TaskDto taskDto, ProcessType processType) {
         Map<String, String> processFileUrlByType = taskDto.getInputs().stream()
-            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
+            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), minioAdapter.generatePreSignedUrlFromFullMinioPath(v.getFilePath(), 1)), HashMap::putAll);
 
         return new CseExportRequest(
             taskDto.getId().toString(),

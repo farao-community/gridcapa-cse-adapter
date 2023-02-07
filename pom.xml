@@ -27,10 +27,10 @@
     </modules>
 
     <properties>
-        <task-manager.api.version>1.5.0</task-manager.api.version>
+        <task-manager.api.version>1.13.0-SNAPSHOT</task-manager.api.version>
         <cse.version>1.7.0</cse.version>
         <logstash.version>7.0.1</logstash.version>
-        <minio-adapter.version>0.2.0</minio-adapter.version>
+        <minio-adapter.version>1.0.0</minio-adapter.version>
     </properties>
 
     <dependencyManagement>
