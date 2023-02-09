@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @Service
-@ConditionalOnBean(value = { CseImportAdapterConfiguration.class })
+@ConditionalOnBean(value = {CseImportAdapterConfiguration.class})
 public class CseImportService implements CseAdapter {
     private static final String TASK_STATUS_UPDATE = "task-status-update";
 
@@ -82,24 +82,24 @@ public class CseImportService implements CseAdapter {
         AutomatedForcedPrasLoader automatedForcedPrasLoader = new AutomatedForcedPrasLoader(fileImporter, processFileUrlByType.get("AUTOMATED-FORCED-PRAS"));
 
         return CseRequest.idccProcess(
-            taskDto.getId().toString(),
-            taskDto.getTimestamp(),
-            Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
-            Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
-            Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC2-AT")).orElseThrow(() -> new CseAdapterException("NTC2-AT type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC2-CH")).orElseThrow(() -> new CseAdapterException("NTC2-CH type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC2-FR")).orElseThrow(() -> new CseAdapterException("NTC2-FR type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
-            Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            userConfigurationLoader.manualForcedPrasIds,
-            automatedForcedPrasLoader.automatedForcedPrasIds,
-            userConfigurationLoader.maximumDichotomiesNumber,
-            100,
-            650,
-            userConfigurationLoader.initialDichotomyIndex
+                taskDto.getId().toString(),
+                taskDto.getTimestamp(),
+                Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
+                Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
+                Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC2-AT")).orElseThrow(() -> new CseAdapterException("NTC2-AT type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC2-CH")).orElseThrow(() -> new CseAdapterException("NTC2-CH type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC2-FR")).orElseThrow(() -> new CseAdapterException("NTC2-FR type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
+                Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
+                userConfigurationLoader.manualForcedPrasIds,
+                automatedForcedPrasLoader.automatedForcedPrasIds,
+                userConfigurationLoader.maximumDichotomiesNumber,
+                100,
+                650,
+                userConfigurationLoader.initialDichotomyIndex
         );
     }
 
@@ -109,25 +109,26 @@ public class CseImportService implements CseAdapter {
         AutomatedForcedPrasLoader automatedForcedPrasLoader = new AutomatedForcedPrasLoader(fileImporter, processFileUrlByType.get("AUTOMATED-FORCED-PRAS"));
 
         return CseRequest.d2ccProcess(
-            taskDto.getId().toString(),
-            taskDto.getTimestamp(),
-            Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
-            Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
-            Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
-            Optional.ofNullable(processFileUrlByType.get("TARGET-CH")).orElseThrow(() -> new CseAdapterException("TARGET-CH type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            userConfigurationWrapper.manualForcedPrasIds,
-            automatedForcedPrasLoader.automatedForcedPrasIds,
-            userConfigurationWrapper.maximumDichotomiesNumber,
-            100,
-            650,
-            userConfigurationWrapper.initialDichotomyIndex
+                taskDto.getId().toString(),
+                taskDto.getTimestamp(),
+                Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
+                Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
+                Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
+                Optional.ofNullable(processFileUrlByType.get("TARGET-CH")).orElseThrow(() -> new CseAdapterException("TARGET-CH type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
+                userConfigurationWrapper.manualForcedPrasIds,
+                automatedForcedPrasLoader.automatedForcedPrasIds,
+                userConfigurationWrapper.maximumDichotomiesNumber,
+                100,
+                650,
+                userConfigurationWrapper.initialDichotomyIndex
         );
     }
 
     private Map<String, String> getUrls(TaskDto taskDto) {
         return taskDto.getInputs().stream()
-            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), minioAdapter.generatePreSignedUrlFromFullMinioPath(v.getFilePath(), 1)), HashMap::putAll);
+                .filter(f -> f.getFilePath() != null)
+                .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), minioAdapter.generatePreSignedUrlFromFullMinioPath(v.getFilePath(), 1)), HashMap::putAll);
     }
 }

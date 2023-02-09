@@ -83,6 +83,7 @@ public class CseExportService implements CseAdapter {
 
     private CseExportRequest getRequest(TaskDto taskDto, ProcessType processType) {
         Map<String, String> processFileUrlByType = taskDto.getInputs().stream()
+                .filter(f -> f.getFilePath() != null)
             .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), minioAdapter.generatePreSignedUrlFromFullMinioPath(v.getFilePath(), 1)), HashMap::putAll);
 
         return new CseExportRequest(
