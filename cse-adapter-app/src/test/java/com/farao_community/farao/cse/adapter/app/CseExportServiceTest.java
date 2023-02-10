@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 /**
@@ -50,8 +52,8 @@ class CseExportServiceTest {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> inputFiles = new ArrayList<>();
-        inputFiles.add(new ProcessFileDto("CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp, "file://cgm.uct"));
-        inputFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
+        inputFiles.add(new ProcessFileDto("/CGM", "CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp));
+        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp));
         return new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
     }
 
@@ -59,22 +61,21 @@ class CseExportServiceTest {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> inputFiles = new ArrayList<>();
-        inputFiles.add(new ProcessFileDto("CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp, "file://cgm.uct"));
-        inputFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
-        inputFiles.add(new ProcessFileDto("GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp, "file://glsk.xml"));
-        inputFiles.add(new ProcessFileDto("NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp, "file://ntc.xml"));
-        inputFiles.add(new ProcessFileDto("NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp, "file://ntc-red.xml"));
-        inputFiles.add(new ProcessFileDto("USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
-            timestamp, ClassLoader.getSystemResource(userConfigFile).toString()));
+        inputFiles.add(new ProcessFileDto("/CGM", "CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp));
+        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp));
+        inputFiles.add(new ProcessFileDto("/GLSK", "GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp));
+        inputFiles.add(new ProcessFileDto("/NTC", "NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp));
+        inputFiles.add(new ProcessFileDto("/NTC-RED", "NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp));
+        inputFiles.add(new ProcessFileDto(ClassLoader.getSystemResource(userConfigFile).toString(), "USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
+                timestamp));
         return new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
     }
 
     @Test
     void testAdapterWithIdccConfig() {
         when(cseExportAdapterConfiguration.getProcessType()).thenReturn(com.farao_community.farao.cse.adapter.app.ProcessType.IDCC);
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath(anyString(), anyInt())).thenReturn("URL");
         TaskDto idccTaskDto = getIdccTaskDto();
-        CseExportRequest idccCseRequest = Mockito.mock(CseExportRequest.class);
-        Mockito.when(cseExportService.getIdccRequest(idccTaskDto)).thenReturn(idccCseRequest);
         cseExportService.runAsync(idccTaskDto);
         assertDoesNotThrow((ThrowingSupplier<RuntimeException>) RuntimeException::new);
     }
@@ -91,6 +92,8 @@ class CseExportServiceTest {
 
     @Test
     void testIdccSuccess() {
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/CGM", 1)).thenReturn("file://cgm.uct");
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/CRAC", 1)).thenReturn("file://crac.json");
         TaskDto taskDto = getIdccTaskDto();
 
         CseExportRequest cseRequest = cseExportService.getIdccRequest(taskDto);
@@ -106,7 +109,7 @@ class CseExportServiceTest {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> inputFiles = new ArrayList<>();
-        inputFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
+        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseExportService.getIdccRequest(taskDto));
@@ -114,6 +117,8 @@ class CseExportServiceTest {
 
     @Test
     void testD2ccSuccess() {
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/CGM", 1)).thenReturn("file://cgm.uct");
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/CRAC", 1)).thenReturn("file://crac.json");
         TaskDto taskDto = getD2ccTaskDto("userConfigs.json");
 
         CseExportRequest cseRequest = cseExportService.getD2ccRequest(taskDto);
@@ -129,7 +134,7 @@ class CseExportServiceTest {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> inputFiles = new ArrayList<>();
-        inputFiles.add(new ProcessFileDto("CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp, "file://crac.json"));
+        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseExportService.getD2ccRequest(taskDto));

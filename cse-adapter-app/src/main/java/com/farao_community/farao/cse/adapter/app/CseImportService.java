@@ -14,6 +14,7 @@ import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatusUpdate;
+import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -30,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @Service
-@ConditionalOnBean(value = { CseImportAdapterConfiguration.class })
+@ConditionalOnBean(value = {CseImportAdapterConfiguration.class})
 public class CseImportService implements CseAdapter {
     private static final String TASK_STATUS_UPDATE = "task-status-update";
 
@@ -39,13 +40,15 @@ public class CseImportService implements CseAdapter {
     private final FileImporter fileImporter;
     private final StreamBridge streamBridge;
     private final Logger businessLogger;
+    private final MinioAdapter minioAdapter;
 
-    public CseImportService(CseImportAdapterConfiguration configuration, CseClient cseClient, FileImporter fileImporter, StreamBridge streamBridge, Logger businessLogger) {
+    public CseImportService(CseImportAdapterConfiguration configuration, CseClient cseClient, FileImporter fileImporter, StreamBridge streamBridge, Logger businessLogger, MinioAdapter minioAdapter) {
         this.configuration = configuration;
         this.cseClient = cseClient;
         this.fileImporter = fileImporter;
         this.streamBridge = streamBridge;
         this.businessLogger = businessLogger;
+        this.minioAdapter = minioAdapter;
     }
 
     @Override
@@ -79,24 +82,24 @@ public class CseImportService implements CseAdapter {
         AutomatedForcedPrasLoader automatedForcedPrasLoader = new AutomatedForcedPrasLoader(fileImporter, processFileUrlByType.get("AUTOMATED-FORCED-PRAS"));
 
         return CseRequest.idccProcess(
-            taskDto.getId().toString(),
-            taskDto.getTimestamp(),
-            Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
-            Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
-            Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC2-AT")).orElseThrow(() -> new CseAdapterException("NTC2-AT type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC2-CH")).orElseThrow(() -> new CseAdapterException("NTC2-CH type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC2-FR")).orElseThrow(() -> new CseAdapterException("NTC2-FR type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
-            Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            userConfigurationLoader.manualForcedPrasIds,
-            automatedForcedPrasLoader.automatedForcedPrasIds,
-            userConfigurationLoader.maximumDichotomiesNumber,
-            100,
-            650,
-            userConfigurationLoader.initialDichotomyIndex
+                taskDto.getId().toString(),
+                taskDto.getTimestamp(),
+                Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
+                Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
+                Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC2-AT")).orElseThrow(() -> new CseAdapterException("NTC2-AT type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC2-CH")).orElseThrow(() -> new CseAdapterException("NTC2-CH type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC2-FR")).orElseThrow(() -> new CseAdapterException("NTC2-FR type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElseThrow(() -> new CseAdapterException("NTC2-SI type not found")),
+                Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
+                userConfigurationLoader.manualForcedPrasIds,
+                automatedForcedPrasLoader.automatedForcedPrasIds,
+                userConfigurationLoader.maximumDichotomiesNumber,
+                100,
+                650,
+                userConfigurationLoader.initialDichotomyIndex
         );
     }
 
@@ -106,25 +109,26 @@ public class CseImportService implements CseAdapter {
         AutomatedForcedPrasLoader automatedForcedPrasLoader = new AutomatedForcedPrasLoader(fileImporter, processFileUrlByType.get("AUTOMATED-FORCED-PRAS"));
 
         return CseRequest.d2ccProcess(
-            taskDto.getId().toString(),
-            taskDto.getTimestamp(),
-            Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
-            Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
-            Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
-            Optional.ofNullable(processFileUrlByType.get("TARGET-CH")).orElseThrow(() -> new CseAdapterException("TARGET-CH type not found")),
-            Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-            userConfigurationWrapper.manualForcedPrasIds,
-            automatedForcedPrasLoader.automatedForcedPrasIds,
-            userConfigurationWrapper.maximumDichotomiesNumber,
-            100,
-            650,
-            userConfigurationWrapper.initialDichotomyIndex
+                taskDto.getId().toString(),
+                taskDto.getTimestamp(),
+                Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
+                Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
+                Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElseThrow(() -> new CseAdapterException("NTC-RED type not found")),
+                Optional.ofNullable(processFileUrlByType.get("TARGET-CH")).orElseThrow(() -> new CseAdapterException("TARGET-CH type not found")),
+                Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
+                userConfigurationWrapper.manualForcedPrasIds,
+                automatedForcedPrasLoader.automatedForcedPrasIds,
+                userConfigurationWrapper.maximumDichotomiesNumber,
+                100,
+                650,
+                userConfigurationWrapper.initialDichotomyIndex
         );
     }
 
     private Map<String, String> getUrls(TaskDto taskDto) {
         return taskDto.getInputs().stream()
-            .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), v.getFileUrl()), HashMap::putAll);
+                .filter(f -> f.getFilePath() != null)
+                .collect(HashMap::new, (m, v) -> m.put(v.getFileType(), minioAdapter.generatePreSignedUrlFromFullMinioPath(v.getFilePath(), 1)), HashMap::putAll);
     }
 }
