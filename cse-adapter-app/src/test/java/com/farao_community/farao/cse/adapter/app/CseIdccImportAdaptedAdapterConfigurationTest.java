@@ -12,14 +12,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import static com.farao_community.farao.cse.adapter.app.ProcessType.IDCC;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @SpringBootTest
-@ActiveProfiles("idcc-import")
-class CseIdccImportAdapterConfigurationTest {
+@ActiveProfiles("idcc-import-adapted")
+class CseIdccImportAdaptedAdapterConfigurationTest {
 
     @Autowired
     private CseImportAdapterConfiguration configuration;
@@ -27,6 +28,6 @@ class CseIdccImportAdapterConfigurationTest {
     @Test
     void testConfigLoading() {
         assertEquals(IDCC, configuration.getProcessType());
-        assertFalse(configuration.isAdaptedImport());
+        assertTrue(configuration.isAdaptedImport());
     }
 }
