@@ -99,7 +99,7 @@ public class CseImportService implements CseAdapter {
                 100,
                 650,
                 userConfigurationLoader.initialDichotomyIndex,
-                configuration.isAdaptedImport()
+                configuration.isEcImport()
         );
     }
 
@@ -123,7 +123,7 @@ public class CseImportService implements CseAdapter {
                 100,
                 650,
                 userConfigurationWrapper.initialDichotomyIndex,
-                configuration.isAdaptedImport()
+                configuration.isEcImport()
         );
     }
 

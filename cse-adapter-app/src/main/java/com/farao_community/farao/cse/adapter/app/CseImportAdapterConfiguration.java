@@ -20,14 +20,14 @@ public class CseImportAdapterConfiguration {
     @Value("${cse-adapter.process-type}")
     private String processType;
 
-    @Value("${cse-adapter.is-adapted-import:false}")
-    private boolean isAdaptedImport;
+    @Value("${cse-adapter.is-ec-import:false}")
+    private boolean isEcImport;
 
     public ProcessType getProcessType() {
         return ProcessType.valueOf(processType);
     }
 
-    public boolean isAdaptedImport() {
-        return isAdaptedImport;
+    public boolean isEcImport() {
+        return isEcImport;
     }
 }

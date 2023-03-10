@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
 @SpringBootTest
-@ActiveProfiles("idcc-import-adapted")
+@ActiveProfiles("idcc-import-ec")
 class CseIdccImportAdaptedAdapterConfigurationTest {
 
     @Autowired
@@ -28,6 +28,6 @@ class CseIdccImportAdaptedAdapterConfigurationTest {
     @Test
     void testConfigLoading() {
         assertEquals(IDCC, configuration.getProcessType());
-        assertTrue(configuration.isAdaptedImport());
+        assertTrue(configuration.isEcImport());
     }
 }

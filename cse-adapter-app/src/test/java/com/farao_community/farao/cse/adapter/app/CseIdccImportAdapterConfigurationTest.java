@@ -27,6 +27,6 @@ class CseIdccImportAdapterConfigurationTest {
     @Test
     void testConfigLoading() {
         assertEquals(IDCC, configuration.getProcessType());
-        assertFalse(configuration.isAdaptedImport());
+        assertFalse(configuration.isEcImport());
     }
 }
