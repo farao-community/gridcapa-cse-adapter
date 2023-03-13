@@ -9,7 +9,6 @@ package com.farao_community.farao.cse.adapter.app;
 import com.farao_community.farao.cse.adapter.app.loader.AutomatedForcedPrasLoader;
 import com.farao_community.farao.cse.adapter.app.loader.UserConfigurationLoader;
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
-import com.farao_community.farao.cse.runner.api.resource.CseResponse;
 import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
@@ -73,7 +72,7 @@ public class CseImportService implements CseAdapter {
             streamBridge.send(TASK_STATUS_UPDATE, new TaskStatusUpdate(taskDto.getId(), TaskStatus.ERROR));
             return;
         }
-        CompletableFuture.runAsync(() -> cseClient.run(cseRequest, CseRequest.class, CseResponse.class));
+        CompletableFuture.runAsync(() -> cseClient.run(cseRequest, CseRequest.class));
     }
 
     CseRequest getIdccRequest(TaskDto taskDto) {
@@ -99,7 +98,8 @@ public class CseImportService implements CseAdapter {
                 userConfigurationLoader.maximumDichotomiesNumber,
                 100,
                 650,
-                userConfigurationLoader.initialDichotomyIndex
+                userConfigurationLoader.initialDichotomyIndex,
+                configuration.isEcImport()
         );
     }
 
@@ -122,7 +122,8 @@ public class CseImportService implements CseAdapter {
                 userConfigurationWrapper.maximumDichotomiesNumber,
                 100,
                 650,
-                userConfigurationWrapper.initialDichotomyIndex
+                userConfigurationWrapper.initialDichotomyIndex,
+                configuration.isEcImport()
         );
     }
 

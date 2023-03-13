@@ -7,7 +7,6 @@
 package com.farao_community.farao.cse.adapter.app;
 
 import com.farao_community.farao.cse.runner.api.resource.CseExportRequest;
-import com.farao_community.farao.cse.runner.api.resource.CseExportResponse;
 import com.farao_community.farao.cse.runner.api.resource.ProcessType;
 import com.farao_community.farao.cse.runner.starter.CseClient;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
@@ -70,7 +69,7 @@ public class CseExportService implements CseAdapter {
             streamBridge.send(TASK_STATUS_UPDATE, new TaskStatusUpdate(taskDto.getId(), TaskStatus.ERROR));
             return;
         }
-        CompletableFuture.runAsync(() -> cseClient.run(cseExportRequest, CseExportRequest.class, CseExportResponse.class));
+        CompletableFuture.runAsync(() -> cseClient.run(cseExportRequest, CseExportRequest.class));
     }
 
     CseExportRequest getIdccRequest(TaskDto taskDto) {

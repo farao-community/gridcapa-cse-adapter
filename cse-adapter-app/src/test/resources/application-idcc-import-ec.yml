@@ -1,0 +1,4 @@
+cse-adapter:
+  exchange-type: import
+  process-type: IDCC
+  is-ec-import: true

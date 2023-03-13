@@ -32,6 +32,7 @@ url-validation:
 cse-adapter:
   exchange-type: import
   process-type: D2CC
+  is-ec-import: false
 
 logging:
   config: /logback-file-location
