@@ -75,6 +75,7 @@ class CseImportServiceTest {
         inputFiles.add(new ProcessFileDto("/NTC", "NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp));
         inputFiles.add(new ProcessFileDto("/TARGET-CH", "TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp));
         inputFiles.add(new ProcessFileDto("/NTC-RED", "NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp));
+        inputFiles.add(new ProcessFileDto("/VULCANUS", "VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp));
         inputFiles.add(new ProcessFileDto(ClassLoader.getSystemResource(userConfigFile).toString(), "USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
                 timestamp));
         return new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
@@ -193,6 +194,7 @@ class CseImportServiceTest {
         Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/NTC-RED", 1)).thenReturn("file://ntc-red.xml");
         Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/TARGET-CH", 1)).thenReturn("file://target-ch.xml");
         Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/NTC", 1)).thenReturn("file://ntc.xml");
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/VULCANUS", 1)).thenReturn("file://vulcanus.xlsx");
         Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath(ClassLoader.getSystemResource("userConfigs.json").toString(), 1)).thenReturn(ClassLoader.getSystemResource("userConfigs.json").toString());
 
         TaskDto taskDto = getD2ccTaskDto("userConfigs.json");
@@ -223,6 +225,7 @@ class CseImportServiceTest {
         inputFiles.add(new ProcessFileDto("/NTC", "NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp));
         inputFiles.add(new ProcessFileDto("/NTC-RED", "NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp));
         inputFiles.add(new ProcessFileDto("/TARGET-CH", "TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp));
+        inputFiles.add(new ProcessFileDto("/VULCANUS", "VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp));
         TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseImportService.getD2ccRequest(taskDto));
@@ -236,6 +239,7 @@ class CseImportServiceTest {
         Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/NTC-RED", 1)).thenReturn("file://ntc-red.xml");
         Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/TARGET-CH", 1)).thenReturn("file://target-ch.xml");
         Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/NTC", 1)).thenReturn("file://ntc.xml");
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/VULCANUS", 1)).thenReturn("file://vulcanus.xlsx");
         Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath(ClassLoader.getSystemResource("userConfigs-null.json").toString(), 1)).thenReturn(ClassLoader.getSystemResource("userConfigs-null.json").toString());
 
         TaskDto taskDto = getD2ccTaskDto("userConfigs-null.json");
