@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>gridcapa-cse-adapter</artifactId>
-    <version>1.12.0-SNAPSHOT</version>
+    <version>1.13.0-SNAPSHOT</version>
     <name>GridCapa CSE adapter</name>
     <description>POM parent for applications that adapt an income to a process launch</description>
     <packaging>pom</packaging>
