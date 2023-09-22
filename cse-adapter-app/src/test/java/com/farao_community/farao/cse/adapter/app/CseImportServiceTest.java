@@ -8,10 +8,7 @@ package com.farao_community.farao.cse.adapter.app;
 
 import com.farao_community.farao.cse.runner.api.resource.CseRequest;
 import com.farao_community.farao.cse.runner.api.resource.ProcessType;
-import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
-import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileStatus;
-import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
-import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
+import com.farao_community.farao.gridcapa.task_manager.api.*;
 import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingSupplier;
@@ -62,7 +59,7 @@ class CseImportServiceTest {
         inputFiles.add(new ProcessFileDto("/NTC2-SI", "NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp));
         inputFiles.add(new ProcessFileDto(ClassLoader.getSystemResource(userConfigFile).toString(), "USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
                 timestamp));
-        return new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
+        return new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList());
     }
 
     private TaskDto getD2ccTaskDto(String userConfigFile) {
@@ -78,7 +75,7 @@ class CseImportServiceTest {
         inputFiles.add(new ProcessFileDto("/VULCANUS", "VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp));
         inputFiles.add(new ProcessFileDto(ClassLoader.getSystemResource(userConfigFile).toString(), "USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
                 timestamp));
-        return new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
+        return new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList());
     }
 
     @Test
@@ -181,7 +178,7 @@ class CseImportServiceTest {
         inputFiles.add(new ProcessFileDto("/NTC2-CH", "NTC2-CH", ProcessFileStatus.VALIDATED, "ch-ntc2", timestamp));
         inputFiles.add(new ProcessFileDto("/NTC2-FR", "NTC2-FR", ProcessFileStatus.VALIDATED, "fr-ntc2", timestamp));
         inputFiles.add(new ProcessFileDto("/NTC2-SI", "NTC2-SI", ProcessFileStatus.VALIDATED, "si-ntc2", timestamp));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseImportService.getIdccRequest(taskDto));
     }
@@ -226,7 +223,7 @@ class CseImportServiceTest {
         inputFiles.add(new ProcessFileDto("/NTC-RED", "NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp));
         inputFiles.add(new ProcessFileDto("/TARGET-CH", "TARGET-CH", ProcessFileStatus.VALIDATED, "target-ch", timestamp));
         inputFiles.add(new ProcessFileDto("/VULCANUS", "VULCANUS", ProcessFileStatus.VALIDATED, "vulcanus", timestamp));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, Collections.emptyList(), inputFiles, Collections.emptyList(), Collections.emptyList());
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseImportService.getD2ccRequest(taskDto));
     }
