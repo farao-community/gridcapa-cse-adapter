@@ -35,7 +35,7 @@ public class FileImporter {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(is.readAllBytes(), UserConfiguration.class);
         } catch (IOException e) {
-            throw new CseInvalidDataException(String.format("Cannot import user configuration file: %s, check file format: %s", getFileNameFromUrl(userConfigurationUrl), e.getMessage()), e);
+            throw new CseInvalidDataException(String.format("Cannot import user configuration file: %s, check file format", getFileNameFromUrl(userConfigurationUrl)), e);
         }
     }
 
@@ -44,7 +44,7 @@ public class FileImporter {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(is.readAllBytes(), AutomatedForcedPras.class);
         } catch (IOException e) {
-            throw new CseInvalidDataException(String.format("Cannot import automated forced PRAs file: %s, check file format: %s", getFileNameFromUrl(automatedForcedPrasUrl), e.getMessage()), e);
+            throw new CseInvalidDataException(String.format("Cannot import automated forced PRAs file: %s, check file format", getFileNameFromUrl(automatedForcedPrasUrl)), e);
         }
     }
 
@@ -52,7 +52,7 @@ public class FileImporter {
         try {
             return FilenameUtils.getName(new URL(url).getPath());
         } catch (MalformedURLException e) {
-            throw new CseInvalidDataException(String.format("URL is invalid: %s", url));
+            throw new CseInvalidDataException(String.format("URL is invalid: %s", url), e);
         }
     }
 
@@ -65,7 +65,7 @@ public class FileImporter {
             return url.openStream(); // NOSONAR Usage of whitelist not triggered by Sonar quality assessment, even if listed as a solution to the vulnerability
         } catch (IOException e) {
             businessLogger.error("Error while retrieving content of file : {}, Link may have expired.", getFileNameFromUrl(urlString));
-            throw new CseInvalidDataException(String.format("Exception occurred while retrieving file content from : %s Cause: %s ", urlString, e.getMessage()));
+            throw new CseInvalidDataException(String.format("Exception occurred while retrieving file content from %s", urlString), e);
         }
     }
 
