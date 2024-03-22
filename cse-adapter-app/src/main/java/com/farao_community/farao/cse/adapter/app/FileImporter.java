@@ -10,14 +10,15 @@ import com.farao_community.farao.cse.adapter.app.model.AutomatedForcedPras;
 import com.farao_community.farao.cse.adapter.app.model.UserConfiguration;
 import com.farao_community.farao.cse.runner.api.exception.CseInvalidDataException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 
 @Service
 public class FileImporter {
@@ -50,8 +51,8 @@ public class FileImporter {
 
     private static String getFileNameFromUrl(String url) {
         try {
-            return FilenameUtils.getName(new URL(url).getPath());
-        } catch (MalformedURLException e) {
+            return Paths.get(new URL(url).toURI()).getFileName().toString();
+        } catch (MalformedURLException | URISyntaxException e) {
             throw new CseInvalidDataException(String.format("URL is invalid: %s", url), e);
         }
     }
