@@ -31,7 +31,6 @@
         <cse.version>1.26.0</cse.version>
         <logstash.version>7.0.1</logstash.version>
         <minio-adapter.version>1.1.2</minio-adapter.version>
-        <commons.io.version>2.15.1</commons.io.version>
     </properties>
 
     <dependencyManagement>
@@ -60,11 +59,6 @@
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
                 <version>${logstash.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons.io.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
