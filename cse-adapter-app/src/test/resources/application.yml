@@ -1,26 +1,9 @@
-spring:
-  rabbitmq:
-    username: guest
-    password: guest
-    host: localhost
-    port: 5672
-  cloud:
-    stream:
-      bindings:
-        handleRun-in-0:
-          binder: rabbit
-          destination: cse-idcc-launch-task
-
-cse-cc-runner:
-  binding:
-    destination: cse-request
-
 minio-adapter:
-  url: http://minio:9000/
-  base-path: /CSE/D2CC/
-  bucket: gridcapa
+  bucket: bucket-for-tests
+  base-path: base/path/for/tests
   access-key: gridcapa
-  secret-key: gridcapa
+  secret-key: gridcapa-secret
+  url: https://minio.test/
 
 url-validation:
   whitelist:
