@@ -82,6 +82,7 @@ public class CseImportService implements CseAdapter {
 
         return CseRequest.idccProcess(
                 taskDto.getId().toString(),
+                CseAdapter.getCurrentRunId(taskDto),
                 taskDto.getTimestamp(),
                 Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
                 Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
@@ -110,6 +111,7 @@ public class CseImportService implements CseAdapter {
 
         return CseRequest.d2ccProcess(
                 taskDto.getId().toString(),
+                CseAdapter.getCurrentRunId(taskDto),
                 taskDto.getTimestamp(),
                 Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
                 Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
