@@ -10,6 +10,7 @@ import com.farao_community.farao.cse.runner.api.resource.CseExportRequest;
 import com.farao_community.farao.cse.runner.api.resource.ProcessType;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileDto;
 import com.farao_community.farao.gridcapa.task_manager.api.ProcessFileStatus;
+import com.farao_community.farao.gridcapa.task_manager.api.ProcessRunDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskStatus;
 import com.farao_community.farao.minio_adapter.starter.MinioAdapter;
@@ -49,26 +50,46 @@ class CseExportServiceTest {
     private MinioAdapter minioAdapter;
 
     private TaskDto getIdccTaskDto() {
+        return getIdccTaskDto(true);
+    }
+
+    private TaskDto getIdccTaskDto(boolean withTaskHistory) {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> inputFiles = new ArrayList<>();
-        inputFiles.add(new ProcessFileDto("/CGM", "CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp));
-        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp));
-        return new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        inputFiles.add(new ProcessFileDto("/CGM", "CGM", ProcessFileStatus.VALIDATED, "cgm", "documentId", timestamp));
+        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", "documentId", timestamp));
+
+        List<ProcessRunDto> runHistory = Collections.emptyList();
+        if (withTaskHistory) {
+            runHistory = new ArrayList<>();
+            runHistory.add(new ProcessRunDto(UUID.randomUUID(), OffsetDateTime.now(), Collections.emptyList()));
+        }
+        return new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), runHistory, Collections.emptyList());
     }
 
     private TaskDto getD2ccTaskDto(String userConfigFile) {
+        return getD2ccTaskDto(userConfigFile, true);
+    }
+
+    private TaskDto getD2ccTaskDto(String userConfigFile, boolean withTaskHistory) {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> inputFiles = new ArrayList<>();
-        inputFiles.add(new ProcessFileDto("/CGM", "CGM", ProcessFileStatus.VALIDATED, "cgm", timestamp));
-        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp));
-        inputFiles.add(new ProcessFileDto("/GLSK", "GLSK", ProcessFileStatus.VALIDATED, "glsk", timestamp));
-        inputFiles.add(new ProcessFileDto("/NTC", "NTC", ProcessFileStatus.VALIDATED, "ntc", timestamp));
-        inputFiles.add(new ProcessFileDto("/NTC-RED", "NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", timestamp));
+        inputFiles.add(new ProcessFileDto("/CGM", "CGM", ProcessFileStatus.VALIDATED, "cgm", "documentId", timestamp));
+        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", "documentId", timestamp));
+        inputFiles.add(new ProcessFileDto("/GLSK", "GLSK", ProcessFileStatus.VALIDATED, "glsk", "documentId", timestamp));
+        inputFiles.add(new ProcessFileDto("/NTC", "NTC", ProcessFileStatus.VALIDATED, "ntc", "documentId", timestamp));
+        inputFiles.add(new ProcessFileDto("/NTC-RED", "NTC-RED", ProcessFileStatus.VALIDATED, "ntc-red", "documentId", timestamp));
         inputFiles.add(new ProcessFileDto(ClassLoader.getSystemResource(userConfigFile).toString(), "USER-CONFIG", ProcessFileStatus.VALIDATED, "user-config",
-                timestamp));
-        return new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+                "documentId", timestamp));
+        List<ProcessRunDto> runHistory = Collections.emptyList();
+        if (withTaskHistory) {
+            runHistory = new ArrayList<>();
+            runHistory.add(new ProcessRunDto(UUID.randomUUID(), OffsetDateTime.now(), Collections.emptyList()));
+            runHistory.add(new ProcessRunDto(UUID.randomUUID(), OffsetDateTime.now(), Collections.emptyList()));
+        }
+        return new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), runHistory, Collections.emptyList());
     }
 
     @Test
@@ -105,12 +126,21 @@ class CseExportServiceTest {
     }
 
     @Test
+    void testIdccNoTaskHistory() {
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/CGM", 1)).thenReturn("file://cgm.uct");
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/CRAC", 1)).thenReturn("file://crac.json");
+        TaskDto taskDto = getIdccTaskDto(false);
+
+        assertThrows(CseAdapterException.class, () -> cseExportService.getIdccRequest(taskDto));
+    }
+
+    @Test
     void testIdccWithMissingFileUrl() {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> inputFiles = new ArrayList<>();
-        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", "documentId", timestamp));
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseExportService.getIdccRequest(taskDto));
     }
@@ -130,12 +160,21 @@ class CseExportServiceTest {
     }
 
     @Test
+    void testD2ccNoTaskHistory() {
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/CGM", 1)).thenReturn("file://cgm.uct");
+        Mockito.when(minioAdapter.generatePreSignedUrlFromFullMinioPath("/CRAC", 1)).thenReturn("file://crac.json");
+        TaskDto taskDto = getD2ccTaskDto("userConfigs.json", false);
+
+        assertThrows(CseAdapterException.class, () -> cseExportService.getD2ccRequest(taskDto));
+    }
+
+    @Test
     void testD2ccWithMissingFileUrl() {
         UUID id = UUID.randomUUID();
         OffsetDateTime timestamp = OffsetDateTime.parse("2021-12-07T14:30Z");
         List<ProcessFileDto> inputFiles = new ArrayList<>();
-        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", timestamp));
-        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        inputFiles.add(new ProcessFileDto("/CRAC", "CRAC", ProcessFileStatus.VALIDATED, "crac", "documentId", timestamp));
+        TaskDto taskDto = new TaskDto(id, timestamp, TaskStatus.READY, inputFiles, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
 
         assertThrows(CseAdapterException.class, () -> cseExportService.getD2ccRequest(taskDto));
     }

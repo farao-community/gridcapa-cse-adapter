@@ -6,7 +6,10 @@
  */
 package com.farao_community.farao.cse.adapter.app;
 
+import com.farao_community.farao.gridcapa.task_manager.api.ProcessRunDto;
 import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
+
+import java.util.List;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -14,4 +17,15 @@ import com.farao_community.farao.gridcapa.task_manager.api.TaskDto;
 public interface CseAdapter {
 
     void runAsync(TaskDto taskDto);
+
+    static String getCurrentRunId(TaskDto taskDto) {
+        List<ProcessRunDto> runHistory = taskDto.getRunHistory();
+        if (runHistory == null || runHistory.isEmpty()) {
+            throw new CseAdapterException("Failed to handle manual run request on timestamp because it has no run history");
+        }
+        if (runHistory.size() > 1) {
+            runHistory.sort((o1, o2) -> o2.getExecutionDate().compareTo(o1.getExecutionDate()));
+        }
+        return runHistory.get(0).getId().toString();
+    }
 }

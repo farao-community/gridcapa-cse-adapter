@@ -87,6 +87,7 @@ public class CseExportService implements CseAdapter {
 
         return new CseExportRequest(
             taskDto.getId().toString(),
+            CseAdapter.getCurrentRunId(taskDto),
             taskDto.getTimestamp(),
             processType,
             Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
