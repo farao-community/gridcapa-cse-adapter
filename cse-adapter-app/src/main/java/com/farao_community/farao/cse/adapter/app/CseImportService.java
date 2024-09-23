@@ -23,8 +23,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import static com.farao_community.farao.cse.adapter.app.FileType.CGM;
+import static com.farao_community.farao.cse.adapter.app.FileType.CRAC;
+import static com.farao_community.farao.cse.adapter.app.FileType.GLSK;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC2_AT;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC2_CH;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC2_FR;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC2_SI;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC_RED;
+import static com.farao_community.farao.cse.adapter.app.FileType.TARGET_CH;
+import static com.farao_community.farao.cse.adapter.app.FileType.VULCANUS;
+import static com.farao_community.farao.cse.adapter.app.GetUrlUtil.getUrlOrEmpty;
+import static com.farao_community.farao.cse.adapter.app.GetUrlUtil.getUrlOrThrow;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -84,16 +97,16 @@ public class CseImportService implements CseAdapter {
                 taskDto.getId().toString(),
                 CseAdapter.getCurrentRunId(taskDto),
                 taskDto.getTimestamp(),
-                Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
-                Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
-                Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
-                Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElse(""),
-                Optional.ofNullable(processFileUrlByType.get("NTC2-AT")).orElse(""),
-                Optional.ofNullable(processFileUrlByType.get("NTC2-CH")).orElse(""),
-                Optional.ofNullable(processFileUrlByType.get("NTC2-FR")).orElse(""),
-                Optional.ofNullable(processFileUrlByType.get("NTC2-SI")).orElse(""),
-                Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
-                Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
+                getUrlOrThrow(processFileUrlByType, CGM),
+                getUrlOrThrow(processFileUrlByType, CRAC),
+                getUrlOrThrow(processFileUrlByType, GLSK),
+                getUrlOrEmpty(processFileUrlByType, NTC_RED),
+                getUrlOrEmpty(processFileUrlByType, NTC2_AT),
+                getUrlOrEmpty(processFileUrlByType, NTC2_CH),
+                getUrlOrEmpty(processFileUrlByType, NTC2_FR),
+                getUrlOrEmpty(processFileUrlByType, NTC2_SI),
+                getUrlOrThrow(processFileUrlByType, VULCANUS),
+                getUrlOrThrow(processFileUrlByType, NTC),
                 userConfigurationLoader.manualForcedPrasIds,
                 automatedForcedPrasLoader.automatedForcedPrasIds,
                 userConfigurationLoader.maximumDichotomiesNumber,
@@ -113,13 +126,13 @@ public class CseImportService implements CseAdapter {
                 taskDto.getId().toString(),
                 CseAdapter.getCurrentRunId(taskDto),
                 taskDto.getTimestamp(),
-                Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
-                Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")),
-                Optional.ofNullable(processFileUrlByType.get("GLSK")).orElseThrow(() -> new CseAdapterException("GLSK type not found")),
-                Optional.ofNullable(processFileUrlByType.get("NTC-RED")).orElse(""),
-                Optional.ofNullable(processFileUrlByType.get("TARGET-CH")).orElseThrow(() -> new CseAdapterException("TARGET-CH type not found")),
-                Optional.ofNullable(processFileUrlByType.get("NTC")).orElseThrow(() -> new CseAdapterException("NTC type not found")),
-                Optional.ofNullable(processFileUrlByType.get("VULCANUS")).orElseThrow(() -> new CseAdapterException("VULCANUS type not found")),
+                getUrlOrThrow(processFileUrlByType, CGM),
+                getUrlOrThrow(processFileUrlByType, CRAC),
+                getUrlOrThrow(processFileUrlByType, GLSK),
+                configuration.isEcImport() ? getUrlOrThrow(processFileUrlByType, NTC_RED) : getUrlOrEmpty(processFileUrlByType, NTC_RED),
+                getUrlOrThrow(processFileUrlByType, TARGET_CH),
+                getUrlOrThrow(processFileUrlByType, NTC),
+                getUrlOrThrow(processFileUrlByType, VULCANUS),
                 userConfigurationWrapper.manualForcedPrasIds,
                 automatedForcedPrasLoader.automatedForcedPrasIds,
                 userConfigurationWrapper.maximumDichotomiesNumber,
