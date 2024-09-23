@@ -23,8 +23,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import static com.farao_community.farao.cse.adapter.app.FileType.CGM;
+import static com.farao_community.farao.cse.adapter.app.FileType.CRAC;
+import static com.farao_community.farao.cse.adapter.app.FileType.GLSK;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC2_AT;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC2_CH;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC2_FR;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC2_SI;
+import static com.farao_community.farao.cse.adapter.app.FileType.NTC_RED;
+import static com.farao_community.farao.cse.adapter.app.FileType.TARGET_CH;
+import static com.farao_community.farao.cse.adapter.app.FileType.VULCANUS;
+import static com.farao_community.farao.cse.adapter.app.GetUrlUtil.getUrlOrEmpty;
+import static com.farao_community.farao.cse.adapter.app.GetUrlUtil.getUrlOrThrow;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -33,17 +46,6 @@ import java.util.concurrent.CompletableFuture;
 @ConditionalOnBean(value = {CseImportAdapterConfiguration.class})
 public class CseImportService implements CseAdapter {
     private static final String TASK_STATUS_UPDATE = "task-status-update";
-    private static final String CGM = "CGM";
-    private static final String CRAC = "CRAC";
-    private static final String GLSK = "GLSK";
-    private static final String NTC = "NTC";
-    private static final String NTC_RED = "NTC-RED";
-    private static final String NTC2_AT = "NTC2-AT";
-    private static final String NTC2_CH = "NTC2-CH";
-    private static final String NTC2_FR = "NTC2-FR";
-    private static final String NTC2_SI = "NTC2-SI";
-    private static final String VULCANUS = "VULCANUS";
-    private static final String TARGET_CH = "TARGET-CH";
 
     private final CseImportAdapterConfiguration configuration;
     private final CseClient cseClient;
@@ -139,16 +141,6 @@ public class CseImportService implements CseAdapter {
                 userConfigurationWrapper.initialDichotomyIndex,
                 configuration.isEcImport()
         );
-    }
-
-    private String getUrlOrThrow(final Map<String, String> processFileUrlByType,
-                                 final String type) {
-        return Optional.ofNullable(processFileUrlByType.get(type)).orElseThrow(() -> new CseAdapterException(type + " type not found"));
-    }
-
-    private String getUrlOrEmpty(final Map<String, String> processFileUrlByType,
-                                 final String type) {
-        return Optional.ofNullable(processFileUrlByType.get(type)).orElse("");
     }
 
     private Map<String, String> getUrls(TaskDto taskDto) {

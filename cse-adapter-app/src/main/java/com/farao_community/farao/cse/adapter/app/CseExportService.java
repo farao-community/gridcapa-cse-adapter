@@ -22,8 +22,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import static com.farao_community.farao.cse.adapter.app.FileType.CGM;
+import static com.farao_community.farao.cse.adapter.app.FileType.CRAC;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -90,7 +92,7 @@ public class CseExportService implements CseAdapter {
             CseAdapter.getCurrentRunId(taskDto),
             taskDto.getTimestamp(),
             processType,
-            Optional.ofNullable(processFileUrlByType.get("CGM")).orElseThrow(() -> new CseAdapterException("CGM type not found")),
-            Optional.ofNullable(processFileUrlByType.get("CRAC")).orElseThrow(() -> new CseAdapterException("CRAC type not found")));
+            GetUrlUtil.getUrlOrThrow(processFileUrlByType, CGM),
+            GetUrlUtil.getUrlOrThrow(processFileUrlByType, CRAC));
     }
 }
