@@ -28,7 +28,7 @@
 
     <properties>
         <task-manager.api.version>1.33.0</task-manager.api.version>
-        <cse.version>1.36.0-SNAPSHOT</cse.version>
+        <cse.version>1.36.0</cse.version>
         <logstash.version>7.0.1</logstash.version>
         <minio-adapter.version>1.3.0</minio-adapter.version>
         <commons.io.version>2.15.1</commons.io.version>
