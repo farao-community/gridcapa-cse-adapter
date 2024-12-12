@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jre-alpine as BUILDER
+FROM eclipse-temurin:21-jre-alpine AS BUILDER
 ARG JAR_FILE=cse-adapter-app/target/*.jar
 COPY ${JAR_FILE} app.jar
 RUN mkdir -p /tmp/app  \
@@ -7,8 +7,8 @@ RUN mkdir -p /tmp/app  \
     --destination /tmp/app
 
 FROM eclipse-temurin:21-jre-alpine
-COPY --from=builder /tmp/app/dependencies/ ./
-COPY --from=builder /tmp/app/spring-boot-loader/ ./
-COPY --from=builder /tmp/app/application/ ./
-COPY --from=builder /tmp/app/snapshot-dependencies/ ./
+COPY --from=BUILDER /tmp/app/dependencies/ ./
+COPY --from=BUILDER /tmp/app/spring-boot-loader/ ./
+COPY --from=BUILDER /tmp/app/application/ ./
+COPY --from=BUILDER /tmp/app/snapshot-dependencies/ ./
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
