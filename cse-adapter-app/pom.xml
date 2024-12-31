@@ -15,6 +15,9 @@
     <name>GridCapa CSE adapter application</name>
     <description>Application that turns a RabbitMQ request from a task to a CSE request</description>
 
+    <properties>
+        <maven.jar.plugin.version>3.4.2</maven.jar.plugin.version>
+    </properties>
     <build>
         <plugins>
             <plugin>
@@ -24,6 +27,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven.jar.plugin.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>**/logback.xml</exclude>
