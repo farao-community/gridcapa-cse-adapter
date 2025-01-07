@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.farao-community.farao</groupId>
         <artifactId>farao-parent-ws</artifactId>
-        <version>1.10.1</version>
+        <version>1.11.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>gridcapa-cse-adapter</artifactId>
@@ -29,7 +29,6 @@
     <properties>
         <task-manager.api.version>1.34.0</task-manager.api.version>
         <cse.version>1.39.0</cse.version>
-        <logstash.version>7.4</logstash.version>
         <gridcapa.starter.minio.adapter.version>1.4.0</gridcapa.starter.minio.adapter.version>
         <commons.io.version>2.15.1</commons.io.version>
     </properties>
@@ -55,11 +54,6 @@
                 <groupId>com.farao-community.farao</groupId>
                 <artifactId>gridcapa-starter-minio-adapter</artifactId>
                 <version>${gridcapa.starter.minio.adapter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.logstash.logback</groupId>
-                <artifactId>logstash-logback-encoder</artifactId>
-                <version>${logstash.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
