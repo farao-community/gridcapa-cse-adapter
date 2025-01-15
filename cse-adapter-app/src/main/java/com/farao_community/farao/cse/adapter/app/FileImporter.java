@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 @Service
@@ -50,8 +52,8 @@ public class FileImporter {
 
     private static String getFileNameFromUrl(String url) {
         try {
-            return FilenameUtils.getName(new URL(url).getPath());
-        } catch (MalformedURLException e) {
+            return FilenameUtils.getName(new URI(url).toURL().getPath());
+        } catch (MalformedURLException | URISyntaxException | IllegalArgumentException e) {
             throw new CseInvalidDataException(String.format("URL is invalid: %s", url), e);
         }
     }
@@ -61,9 +63,9 @@ public class FileImporter {
             if (urlWhitelistConfiguration.getWhitelist().stream().noneMatch(urlString::startsWith)) {
                 throw new CseInvalidDataException(String.format("URL '%s' is not part of application's whitelisted url's.", urlString));
             }
-            URL url = new URL(urlString);
+            URL url = new URI(urlString).toURL();
             return url.openStream(); // NOSONAR Usage of whitelist not triggered by Sonar quality assessment, even if listed as a solution to the vulnerability
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException | IllegalArgumentException e) {
             businessLogger.error("Error while retrieving content of file : {}, Link may have expired.", getFileNameFromUrl(urlString));
             throw new CseInvalidDataException(String.format("Exception occurred while retrieving file content from %s", urlString), e);
         }
