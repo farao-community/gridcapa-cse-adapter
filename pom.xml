@@ -29,7 +29,7 @@
     <properties>
         <task-manager.api.version>1.36.0</task-manager.api.version>
         <cse.version>1.39.0</cse.version>
-        <gridcapa.starter.minio.adapter.version>1.4.0</gridcapa.starter.minio.adapter.version>
+        <gridcapa.starter.minio.adapter.version>1.6.0</gridcapa.starter.minio.adapter.version>
         <commons.io.version>2.15.1</commons.io.version>
     </properties>
 
