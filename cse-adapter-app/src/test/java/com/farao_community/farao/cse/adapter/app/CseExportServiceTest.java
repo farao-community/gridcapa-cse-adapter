@@ -18,9 +18,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingSupplier;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -28,7 +28,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -40,13 +42,13 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("d2cc-export")
 class CseExportServiceTest {
 
-    @SpyBean
+    @MockitoSpyBean
     private CseExportService cseExportService;
 
-    @MockBean
+    @MockitoBean
     private CseExportAdapterConfiguration cseExportAdapterConfiguration;
 
-    @MockBean
+    @MockitoBean
     private MinioAdapter minioAdapter;
 
     private TaskDto getIdccTaskDto() {
