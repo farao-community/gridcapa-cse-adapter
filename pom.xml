@@ -27,6 +27,7 @@
     </modules>
 
     <properties>
+        <argLine /> <!-- required for java agent declaration, do not remove -->
         <task-manager.api.version>1.36.0</task-manager.api.version>
         <cse.version>1.39.0</cse.version>
         <gridcapa.starter.minio.adapter.version>1.6.0</gridcapa.starter.minio.adapter.version>
