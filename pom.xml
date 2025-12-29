@@ -29,7 +29,7 @@
     <properties>
         <argLine /> <!-- required for java agent declaration, do not remove -->
         <task-manager.api.version>1.38.0</task-manager.api.version>
-        <cse.version>1.49.0</cse.version>
+        <cse.version>1.49.1</cse.version>
         <gridcapa.starter.minio.adapter.version>1.8.0</gridcapa.starter.minio.adapter.version>
         <commons.io.version>2.15.1</commons.io.version>
     </properties>
